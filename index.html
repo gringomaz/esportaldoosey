@@ -655,7 +655,22 @@
     // --- Supabase Config ---
     const SUPABASE_URL = "https://lobjdcnmgwymwcniwxxh.supabase.co";
     const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxvYmpkY25tZ3d5bXdjbml3eHhoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk2NTg4MDIsImV4cCI6MjA5NTIzNDgwMn0.kAJc_TbAoRmtiogt4jxLYr6fop9UodkzxQtQiZWLmKU";
-    const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    
+    let _supabase = null;
+    try {
+      console.log("Initializing Supabase client...");
+      if (typeof supabase !== 'undefined' && supabase.createClient) {
+        _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        console.log("Supabase client created successfully (lowercase global).");
+      } else if (typeof Supabase !== 'undefined' && Supabase.createClient) {
+        _supabase = Supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        console.log("Supabase client created successfully (uppercase global).");
+      } else {
+        console.error("Supabase CDN library not detected on page.");
+      }
+    } catch (e) {
+      console.error("Supabase initialization exception:", e);
+    }
 
     // --- State cache ---
     let currentUser = null;
@@ -677,51 +692,91 @@
     function triggerToast(msg) {
       const toast = document.getElementById("toast");
       const toastMsg = document.getElementById("toastMsg");
-      toastMsg.textContent = msg;
-      toast.classList.remove("hidden");
-      setTimeout(() => toast.classList.add("hidden"), 3000);
+      if (toast && toastMsg) {
+        toastMsg.textContent = msg;
+        toast.classList.remove("hidden");
+        setTimeout(() => toast.classList.add("hidden"), 3000);
+      } else {
+        console.log("Toast fallback:", msg);
+      }
     }
 
     // --- Session checking ---
     window.addEventListener("load", async () => {
-      const { data: { session } } = await _supabase.auth.getSession();
-      handleAuthSession(session);
+      try {
+        console.log("Page loaded. Checking active Supabase session...");
+        if (!_supabase) {
+          console.error("Supabase client not initialized.");
+          return;
+        }
 
-      _supabase.auth.onAuthStateChange((event, session) => {
+        const { data: { session }, error } = await _supabase.auth.getSession();
+        if (error) throw error;
+
+        console.log("Initial session fetched:", session);
         handleAuthSession(session);
-      });
+
+        _supabase.auth.onAuthStateChange((event, session) => {
+          console.log("Supabase Auth State Changed event:", event, "session:", session);
+          handleAuthSession(session);
+        });
+      } catch (err) {
+        console.error("Exception during load session check:", err);
+      }
     });
 
     function handleAuthSession(session) {
-      const authScreen = document.getElementById("authScreen");
-      const dashboardScreen = document.getElementById("dashboardScreen");
-
-      if (session) {
-        currentUser = session.user;
-        userRole = currentUser.user_metadata?.role || "client";
-        
-        authScreen.classList.add("hidden");
-        dashboardScreen.classList.remove("hidden");
-
-        // Profile fields
-        document.getElementById("userName").textContent = currentUser.user_metadata?.name || currentUser.email.split("@")[0];
-        document.getElementById("userEmail").textContent = currentUser.email;
-        document.getElementById("userAvatar").textContent = (currentUser.user_metadata?.name || "MT").substring(0, 2).toUpperCase();
-
-        document.getElementById("roleBadge").textContent = userRole.toUpperCase();
-        if (userRole === "admin") {
-          document.getElementById("roleBadge").className = "pill good text-[10px]";
-        } else {
-          document.getElementById("roleBadge").className = "pill info text-[10px]";
+      try {
+        const authScreen = document.getElementById("authScreen");
+        const dashboardScreen = document.getElementById("dashboardScreen");
+        if (!authScreen || !dashboardScreen) {
+          console.error("Required auth elements missing in DOM.");
+          return;
         }
 
-        renderLayoutByRole();
-        refreshData();
-      } else {
-        currentUser = null;
-        userRole = null;
-        authScreen.classList.remove("hidden");
-        dashboardScreen.classList.add("hidden");
+        if (session) {
+          currentUser = session.user;
+          userRole = currentUser.user_metadata?.role || "client";
+          
+          authScreen.classList.add("hidden");
+          dashboardScreen.classList.remove("hidden");
+
+          // Profile fields
+          const userNameEl = document.getElementById("userName");
+          if (userNameEl) {
+            userNameEl.textContent = currentUser.user_metadata?.name || (currentUser.email ? currentUser.email.split("@")[0] : "Authorized User");
+          }
+          
+          const userEmailEl = document.getElementById("userEmail");
+          if (userEmailEl) {
+            userEmailEl.textContent = currentUser.email || "";
+          }
+          
+          const userAvatarEl = document.getElementById("userAvatar");
+          if (userAvatarEl) {
+            userAvatarEl.textContent = (currentUser.user_metadata?.name || "MT").substring(0, 2).toUpperCase();
+          }
+
+          const roleBadgeEl = document.getElementById("roleBadge");
+          if (roleBadgeEl) {
+            roleBadgeEl.textContent = userRole.toUpperCase();
+            if (userRole === "admin") {
+              roleBadgeEl.className = "pill good text-[10px]";
+            } else {
+              roleBadgeEl.className = "pill info text-[10px]";
+            }
+          }
+
+          renderLayoutByRole();
+          refreshData().catch(e => console.error("refreshData failure:", e));
+        } else {
+          currentUser = null;
+          userRole = null;
+          authScreen.classList.remove("hidden");
+          dashboardScreen.classList.add("hidden");
+        }
+      } catch (e) {
+        console.error("Exception in handleAuthSession:", e);
       }
     }
 
@@ -733,14 +788,27 @@
       const errorDiv = document.getElementById("loginError");
       const loginBtn = document.getElementById("loginBtn");
 
+      if (!errorDiv || !loginBtn) {
+        console.error("DOM components missing in loginForm submission handler.");
+        return;
+      }
+
       errorDiv.classList.add("hidden");
       loginBtn.disabled = true;
       loginBtn.textContent = "Verifying Credentials...";
 
       try {
+        if (!_supabase) {
+          throw new Error("Supabase is not initialized. Please check network connection and reload the page.");
+        }
+        
+        console.log("Attempting sign-in for email:", email);
         const { data, error } = await _supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
+        
+        console.log("Sign-in request returned successfully. User ID:", data?.user?.id);
       } catch (err) {
+        console.error("Sign-in process encountered an error:", err);
         errorDiv.textContent = err.message || "Invalid email or security password.";
         errorDiv.classList.remove("hidden");
         loginBtn.disabled = false;
