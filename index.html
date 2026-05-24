@@ -202,7 +202,7 @@
   <div id="authScreen" class="flex-1 flex items-center justify-center p-4">
     <div class="card-glass w-full max-w-md rounded-2xl p-8 text-center fade-in">
       <div class="flex justify-center gap-3 mb-6 items-center">
-        <img class="brand-seal" src="wym-seal.jpeg" alt="Wyoming seal" onerror="this.src='https://images.unsplash.com/photo-1599305445671-ac291c95aba9?auto=format&fit=crop&w=120&q=80'" />
+        <img class="brand-seal" src="wym-seal.jpeg" alt="Wyoming seal" onerror="imgFallback(this)" />
         <div class="text-left">
           <h2 class="font-extrabold text-brand-600 text-xl tracking-tight leading-tight">Meridian Trust LLC</h2>
           <p class="text-xs text-gray-400 font-medium">Business Portal & Service Desk</p>
@@ -244,7 +244,7 @@
     <aside class="w-full lg:w-72 bg-white border-r border-gray-100 flex flex-col shadow-xl lg:shadow-none shrink-0">
       <!-- Header -->
       <div class="px-6 py-5 border-b border-gray-100 flex items-center gap-3">
-        <img class="brand-seal" src="wym-seal.jpeg" alt="Wyoming seal" />
+        <img class="brand-seal" src="wym-seal.jpeg" alt="Wyoming seal" onerror="imgFallback(this)" />
         <div>
           <p class="font-extrabold text-brand-500 text-base leading-tight">Meridian Trust</p>
           <p class="text-[11px] text-brand-teal font-semibold tracking-wider uppercase">Business Portal</p>
@@ -652,6 +652,12 @@
 
   <!-- ================= PORTAL LOGIC & SUPABASE BRIDGING ================= -->
   <script>
+    // --- Image Fallback ---
+    function imgFallback(img) {
+      img.onerror = null;
+      img.src = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='48' fill='%23174a6f' stroke='%23b8860b' stroke-width='3'/><circle cx='50' cy='50' r='40' fill='none' stroke='%23b8860b' stroke-width='1' stroke-dasharray='2,2'/><text x='50' y='56' font-family='sans-serif' font-size='14' font-weight='bold' fill='%23ffffff' text-anchor='middle'>MT</text></svg>";
+    }
+
     // --- Supabase Config ---
     const SUPABASE_URL = "https://lobjdcnmgwymwcniwxxh.supabase.co";
     const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxvYmpkY25tZ3d5bXdjbml3eHhoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk2NTg4MDIsImV4cCI6MjA5NTIzNDgwMn0.kAJc_TbAoRmtiogt4jxLYr6fop9UodkzxQtQiZWLmKU";
