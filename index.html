@@ -3,23 +3,31 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>EscrowVault – Client Dashboard</title>
+  <title>Meridian Trust LLC | Business Support Portal</title>
+  
+  <!-- TailwindCSS -->
   <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Supabase JS Client CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  
+  <!-- Google Fonts (Inter) -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+
   <script>
     tailwind.config = {
       theme: {
         extend: {
           colors: {
             brand: {
-              50: '#eef2ff',
-              100: '#e0e7ff',
-              200: '#c7d2fe',
-              400: '#818cf8',
-              500: '#6366f1',
-              600: '#4f46e5',
-              700: '#4338ca',
-              800: '#3730a3',
-              900: '#312e81',
+              50: '#f4f8fa',
+              100: '#e9f1f5',
+              500: '#174a6f',
+              600: '#123b59',
+              700: '#0e2b42',
+              accent: '#b8860b',
+              accentHover: '#9e730a',
+              teal: '#087579',
             }
           },
           fontFamily: {
@@ -29,882 +37,1429 @@
       }
     }
   </script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
-  <style>
-    * { box-sizing: border-box; }
-    body { font-family: 'Inter', sans-serif; }
 
-    .sidebar-link.active {
-      background: linear-gradient(135deg, #4f46e5, #7c3aed);
-      color: #fff;
-      box-shadow: 0 4px 15px rgba(79,70,229,0.35);
+  <style>
+    :root {
+      --brand: #174a6f;
+      --brand-teal: #087579;
+      --brand-accent: #b8860b;
+      --ink: #172033;
+      --muted: #5d6b82;
+      --line: #d8dee8;
+      --paper: #ffffff;
+      --field: #f7f9fc;
     }
-    .sidebar-link:not(.active):hover {
-      background: rgba(99,102,241,0.08);
-      color: #4f46e5;
+
+    body {
+      font-family: 'Inter', sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top left, rgba(8, 117, 121, 0.08), transparent 34rem),
+        linear-gradient(180deg, #f7f9fc 0%, #eef2f6 100%);
+      min-height: screen;
     }
 
     .card-glass {
-      background: rgba(255,255,255,0.85);
-      backdrop-filter: blur(12px);
-      border: 1px solid rgba(255,255,255,0.7);
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(216, 222, 232, 0.7);
+      box-shadow: 0 8px 30px rgba(25, 39, 63, 0.06);
     }
 
-    .stat-card {
-      background: #fff;
-      border: 1px solid #e5e7eb;
-      transition: transform .2s, box-shadow .2s;
-    }
-    .stat-card:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 10px 30px rgba(79,70,229,0.1);
+    .sidebar-link.active {
+      background: linear-gradient(135deg, var(--brand), var(--brand-teal));
+      color: #fff;
+      box-shadow: 0 4px 15px rgba(23, 74, 111, 0.25);
     }
 
-    .badge-pending   { background:#fef3c7; color:#92400e; }
-    .badge-active    { background:#d1fae5; color:#065f46; }
-    .badge-disputed  { background:#fee2e2; color:#991b1b; }
-    .badge-completed { background:#e0e7ff; color:#3730a3; }
+    .sidebar-link:not(.active):hover {
+      background: rgba(8, 117, 121, 0.08);
+      color: var(--brand-teal);
+    }
+
+    .btn-gradient {
+      background: linear-gradient(135deg, var(--brand), var(--brand-teal));
+      color: #fff;
+      box-shadow: 0 1px 0 rgba(255, 255, 255, 0.2) inset, 0 8px 16px rgba(23, 74, 111, 0.12);
+      transition: transform 0.16s ease, filter 0.16s ease;
+    }
+    .btn-gradient:hover {
+      filter: brightness(1.05);
+      transform: translateY(-1px);
+    }
+    .btn-gradient:active {
+      transform: none;
+    }
+
+    .btn-accent {
+      background: linear-gradient(135deg, var(--brand-accent), #9e730a);
+      color: #fff;
+      box-shadow: 0 1px 0 rgba(255, 255, 255, 0.2) inset, 0 8px 16px rgba(184, 134, 11, 0.12);
+      transition: transform 0.16s ease, filter 0.16s ease;
+    }
+    .btn-accent:hover {
+      filter: brightness(1.05);
+      transform: translateY(-1px);
+    }
 
     .progress-bar-inner {
       transition: width 1.2s cubic-bezier(.4,0,.2,1);
     }
 
-    .tab-active {
-      border-bottom: 2px solid #4f46e5;
-      color: #4f46e5;
-      font-weight: 600;
+    .info-line {
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 9px 0;
+      border-bottom: 1px solid #eaecf0;
+      font-size: 13px;
     }
+    .info-line:last-child { border-bottom: 0; }
+    .info-line strong { color: var(--muted); font-weight: 600; }
+    .info-line span { color: var(--ink); font-weight: 500; word-break: break-all; text-align: right; }
 
     ::-webkit-scrollbar { width: 6px; height: 6px; }
     ::-webkit-scrollbar-track { background: #f1f5f9; }
-    ::-webkit-scrollbar-thumb { background: #c7d2fe; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb { background: #c2cfd6; border-radius: 3px; }
 
-    @keyframes fadeInUp {
-      from { opacity:0; transform:translateY(16px); }
-      to   { opacity:1; transform:translateY(0); }
-    }
     .fade-in { animation: fadeInUp .45s ease both; }
-
-    .mobile-overlay {
-      display: none;
-      position: fixed; inset: 0;
-      background: rgba(0,0,0,.45);
-      z-index: 30;
-    }
-    .mobile-overlay.open { display: block; }
-
-    @media (max-width: 1024px) {
-      #sidebar {
-        position: fixed;
-        left: -280px;
-        top: 0; bottom: 0;
-        z-index: 40;
-        transition: left .3s ease;
-      }
-      #sidebar.open { left: 0; }
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
     }
 
-    .notification-dot { animation: pulse 2s infinite; }
-    @keyframes pulse {
-      0%,100% { opacity:1; }
-      50% { opacity:.4; }
+    .message-log {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-height: 400px;
+      overflow-y: auto;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px;
+      background: var(--field);
     }
+    .message {
+      max-width: 85%;
+      padding: 10px 12px;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      font-size: 13.5px;
+      line-height: 1.45;
+    }
+    .message.admin {
+      margin-left: auto;
+      border-color: #a6f4c5;
+      background: #ecfdf3;
+    }
+    .message.client {
+      margin-right: auto;
+      border-color: #b2ddff;
+      background: #eff8ff;
+    }
+    .message strong { display: block; margin-bottom: 2px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; }
+    .message span { display: block; margin-top: 5px; color: var(--muted); font-size: 10.5px; text-align: right; }
 
-    .timeline-dot {
-      width: 10px; height: 10px;
+    .timeline { display: flex; flex-direction: column; gap: 12px; }
+    .timeline-entry {
+      border-left: 4px solid var(--brand);
+      padding: 11px 13px;
+      border-radius: 0 8px 8px 0;
+      background: var(--field);
+      font-size: 13px;
+    }
+    .timeline-entry strong { color: var(--ink); font-weight: 700; font-size: 13.5px; }
+    .timeline-entry span.date { display: block; color: var(--muted); font-size: 11px; margin-top: 4px; }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      border-radius: 999px;
+      padding: 4px 8px;
+      font-size: 11.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+    .pill.warn { color: #7a2e0e; background: #fff4e5; border: 1px solid #ffd0a1; }
+    .pill.good { color: #064e3b; background: #dcfae6; border: 1px solid #a6f4c5; }
+    .pill.info { color: #174a6f; background: #eef4ff; border: 1px solid #b2ddff; }
+
+    .brand-seal {
+      width: 44px;
+      height: 44px;
       border-radius: 50%;
-      flex-shrink: 0;
+      object-fit: cover;
+      border: 2px solid #fff;
+      box-shadow: 0 4px 10px rgba(25, 39, 63, 0.15);
+      background: #fff;
     }
   </style>
 </head>
-<body class="bg-gray-50 text-gray-800 min-h-screen flex">
+<body class="text-gray-800 min-h-screen flex flex-col">
 
-<!-- Mobile Overlay -->
-<div id="mobileOverlay" class="mobile-overlay" onclick="toggleSidebar()"></div>
-
-<!-- ===== SIDEBAR ===== -->
-<aside id="sidebar" class="w-64 min-h-screen bg-white border-r border-gray-100 flex flex-col shadow-xl lg:shadow-none">
-  <!-- Logo -->
-  <div class="px-6 py-5 border-b border-gray-100 flex items-center gap-3">
-    <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center shadow-lg">
-      <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
-      </svg>
-    </div>
-    <div>
-      <p class="font-800 text-gray-900 font-extrabold text-base leading-tight">EscrowVault</p>
-      <p class="text-xs text-gray-400 font-medium">Secure Transactions</p>
-    </div>
-  </div>
-
-  <!-- Nav -->
-  <nav class="flex-1 px-4 py-5 space-y-1 overflow-y-auto">
-    <p class="text-[10px] font-700 text-gray-400 uppercase tracking-widest px-3 mb-2 font-bold">Main</p>
-    <a href="#" class="sidebar-link active flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all" onclick="setActive(this,'dashboard')">
-      <svg class="w-4.5 h-4.5 w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-      Overview
-    </a>
-    <a href="#" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-600 transition-all" onclick="setActive(this,'transactions')">
-      <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
-      Transactions
-    </a>
-    <a href="#" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-600 transition-all" onclick="setActive(this,'escrows')">
-      <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
-      My Escrows
-      <span class="ml-auto bg-indigo-100 text-indigo-700 text-xs font-bold px-2 py-0.5 rounded-full">4</span>
-    </a>
-    <a href="#" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-600 transition-all" onclick="setActive(this,'disputes')">
-      <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
-      Disputes
-      <span class="ml-auto bg-red-100 text-red-600 text-xs font-bold px-2 py-0.5 rounded-full">1</span>
-    </a>
-    <a href="#" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-600 transition-all" onclick="setActive(this,'wallet')">
-      <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M3 6h18M3 14h18M3 18h18"/></svg>
-      Wallet
-    </a>
-
-    <p class="text-[10px] font-700 text-gray-400 uppercase tracking-widest px-3 mb-2 mt-5 font-bold">Account</p>
-    <a href="#" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-600 transition-all" onclick="setActive(this,'documents')">
-      <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-      Documents
-    </a>
-    <a href="#" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-600 transition-all" onclick="setActive(this,'settings')">
-      <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><circle cx="12" cy="12" r="3"/></svg>
-      Settings
-    </a>
-    <a href="#" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-600 transition-all" onclick="setActive(this,'support')">
-      <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
-      Support
-    </a>
-  </nav>
-
-  <!-- User Profile -->
-  <div class="px-4 py-4 border-t border-gray-100">
-    <div class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-50 cursor-pointer transition">
-      <img src="https://ui-avatars.com/api/?name=Jordan+Lee&background=4f46e5&color=fff&bold=true&size=80" class="w-9 h-9 rounded-full ring-2 ring-indigo-200" alt="User Avatar"/>
-      <div class="flex-1 min-w-0">
-        <p class="text-sm font-semibold text-gray-800 truncate">Jordan Lee</p>
-        <p class="text-xs text-gray-400 truncate">jordan@example.com</p>
-      </div>
-      <svg class="w-4 h-4 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
-    </div>
-  </div>
-</aside>
-
-<!-- ===== MAIN CONTENT ===== -->
-<div class="flex-1 flex flex-col min-h-screen overflow-hidden">
-
-  <!-- Top Header -->
-  <header class="bg-white border-b border-gray-100 px-6 py-4 flex items-center gap-4 sticky top-0 z-20 shadow-sm">
-    <!-- Hamburger -->
-    <button onclick="toggleSidebar()" class="lg:hidden p-2 rounded-lg hover:bg-gray-100 transition">
-      <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
-    </button>
-
-    <div>
-      <h1 class="text-lg font-bold text-gray-900">Good morning, Jordan 👋</h1>
-      <p class="text-xs text-gray-400 hidden sm:block">Here's what's happening with your escrow accounts.</p>
-    </div>
-
-    <div class="ml-auto flex items-center gap-3">
-      <!-- Search -->
-      <div class="hidden md:flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 w-52 focus-within:border-indigo-400 transition">
-        <svg class="w-4 h-4 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
-        <input type="text" placeholder="Search transactions…" class="bg-transparent text-sm outline-none text-gray-700 placeholder-gray-400 w-full"/>
-      </div>
-
-      <!-- New Escrow Button -->
-      <button onclick="openNewEscrowModal()" class="hidden sm:flex items-center gap-1.5 bg-gradient-to-r from-indigo-500 to-violet-600 text-white text-sm font-semibold px-4 py-2.5 rounded-xl shadow-md hover:shadow-lg hover:scale-105 transition-all">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
-        New Escrow
-      </button>
-
-      <!-- Notifications -->
-      <button class="relative p-2.5 rounded-xl bg-gray-50 border border-gray-200 hover:border-indigo-300 transition">
-        <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
-        <span class="notification-dot absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full"></span>
-      </button>
-    </div>
-  </header>
-
-  <!-- Page Content -->
-  <main class="flex-1 overflow-y-auto p-6 space-y-6">
-
-    <!-- ===== KPI CARDS ===== -->
-    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 fade-in">
-
-      <!-- Total in Escrow -->
-      <div class="stat-card rounded-2xl p-5 relative overflow-hidden">
-        <div class="absolute -right-4 -top-4 w-20 h-20 rounded-full bg-indigo-50 opacity-60"></div>
-        <div class="flex items-start justify-between mb-3">
-          <div class="w-10 h-10 rounded-xl bg-indigo-100 flex items-center justify-center">
-            <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
-          </div>
-          <span class="text-xs font-medium text-emerald-600 bg-emerald-50 px-2 py-1 rounded-full">+12.4%</span>
-        </div>
-        <p class="text-2xl font-extrabold text-gray-900">$84,320</p>
-        <p class="text-sm text-gray-500 mt-0.5">Total in Escrow</p>
-      </div>
-
-      <!-- Active Deals -->
-      <div class="stat-card rounded-2xl p-5 relative overflow-hidden">
-        <div class="absolute -right-4 -top-4 w-20 h-20 rounded-full bg-violet-50 opacity-60"></div>
-        <div class="flex items-start justify-between mb-3">
-          <div class="w-10 h-10 rounded-xl bg-violet-100 flex items-center justify-center">
-            <svg class="w-5 h-5 text-violet-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
-          </div>
-          <span class="text-xs font-medium text-emerald-600 bg-emerald-50 px-2 py-1 rounded-full">+2 new</span>
-        </div>
-        <p class="text-2xl font-extrabold text-gray-900">4</p>
-        <p class="text-sm text-gray-500 mt-0.5">Active Deals</p>
-      </div>
-
-      <!-- Released This Month -->
-      <div class="stat-card rounded-2xl p-5 relative overflow-hidden">
-        <div class="absolute -right-4 -top-4 w-20 h-20 rounded-full bg-emerald-50 opacity-60"></div>
-        <div class="flex items-start justify-between mb-3">
-          <div class="w-10 h-10 rounded-xl bg-emerald-100 flex items-center justify-center">
-            <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2zM10 8.5a.5.5 0 11-1 0 .5.5 0 011 0zm5 5a.5.5 0 11-1 0 .5.5 0 011 0z"/></svg>
-          </div>
-          <span class="text-xs font-medium text-emerald-600 bg-emerald-50 px-2 py-1 rounded-full">+8.1%</span>
-        </div>
-        <p class="text-2xl font-extrabold text-gray-900">$22,500</p>
-        <p class="text-sm text-gray-500 mt-0.5">Released This Month</p>
-      </div>
-
-      <!-- Open Disputes -->
-      <div class="stat-card rounded-2xl p-5 relative overflow-hidden">
-        <div class="absolute -right-4 -top-4 w-20 h-20 rounded-full bg-red-50 opacity-60"></div>
-        <div class="flex items-start justify-between mb-3">
-          <div class="w-10 h-10 rounded-xl bg-red-100 flex items-center justify-center">
-            <svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
-          </div>
-          <span class="text-xs font-medium text-red-600 bg-red-50 px-2 py-1 rounded-full">Action needed</span>
-        </div>
-        <p class="text-2xl font-extrabold text-gray-900">1</p>
-        <p class="text-sm text-gray-500 mt-0.5">Open Disputes</p>
-      </div>
-    </div>
-
-    <!-- ===== MAIN GRID ===== -->
-    <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
-
-      <!-- Active Escrows -->
-      <div class="xl:col-span-2 bg-white rounded-2xl border border-gray-100 shadow-sm fade-in">
-        <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
-          <h2 class="font-bold text-gray-900">Active Escrows</h2>
-          <button class="text-sm text-indigo-600 font-semibold hover:text-indigo-700 flex items-center gap-1">View all
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
-          </button>
-        </div>
-
-        <!-- Tabs -->
-        <div class="flex gap-6 px-6 border-b border-gray-100">
-          <button class="tab-active text-sm py-3 border-b-2 transition" onclick="switchTab(this,'all')">All</button>
-          <button class="text-sm py-3 text-gray-500 border-b-2 border-transparent hover:text-gray-700 transition" onclick="switchTab(this,'as-buyer')">As Buyer</button>
-          <button class="text-sm py-3 text-gray-500 border-b-2 border-transparent hover:text-gray-700 transition" onclick="switchTab(this,'as-seller')">As Seller</button>
-        </div>
-
-        <div class="p-4 space-y-3" id="escrowList">
-          <!-- Escrow Item -->
-          <div class="escrow-item flex flex-col sm:flex-row sm:items-center gap-4 p-4 rounded-xl border border-gray-100 hover:border-indigo-200 hover:bg-indigo-50/30 transition cursor-pointer group" onclick="openEscrowDetail(this)">
-            <div class="w-11 h-11 rounded-xl bg-blue-100 flex items-center justify-center flex-shrink-0">
-              <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
-            </div>
-            <div class="flex-1 min-w-0">
-              <div class="flex items-center gap-2 flex-wrap">
-                <p class="font-semibold text-gray-900 text-sm">Real Estate – 123 Maple St</p>
-                <span class="badge-active text-xs font-bold px-2.5 py-0.5 rounded-full">Active</span>
-              </div>
-              <p class="text-xs text-gray-500 mt-0.5">Seller: Michael Tran · ID: ESC-20481</p>
-              <div class="mt-2">
-                <div class="flex justify-between text-xs text-gray-500 mb-1">
-                  <span>Funds released on milestones</span>
-                  <span class="font-semibold text-gray-700">65%</span>
-                </div>
-                <div class="h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                  <div class="h-full bg-gradient-to-r from-indigo-500 to-violet-500 rounded-full progress-bar-inner" style="width:65%"></div>
-                </div>
-              </div>
-            </div>
-            <div class="text-right flex-shrink-0">
-              <p class="font-extrabold text-gray-900 text-base">$42,000</p>
-              <p class="text-xs text-gray-400 mt-0.5">Due Jun 15</p>
-            </div>
-          </div>
-
-          <div class="escrow-item flex flex-col sm:flex-row sm:items-center gap-4 p-4 rounded-xl border border-gray-100 hover:border-indigo-200 hover:bg-indigo-50/30 transition cursor-pointer" onclick="openEscrowDetail(this)">
-            <div class="w-11 h-11 rounded-xl bg-emerald-100 flex items-center justify-center flex-shrink-0">
-              <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17H3a2 2 0 01-2-2V5a2 2 0 012-2h14a2 2 0 012 2v10a2 2 0 01-2 2h-2"/></svg>
-            </div>
-            <div class="flex-1 min-w-0">
-              <div class="flex items-center gap-2 flex-wrap">
-                <p class="font-semibold text-gray-900 text-sm">Software Dev Contract</p>
-                <span class="badge-active text-xs font-bold px-2.5 py-0.5 rounded-full">Active</span>
-              </div>
-              <p class="text-xs text-gray-500 mt-0.5">Contractor: Priya Mehta · ID: ESC-20392</p>
-              <div class="mt-2">
-                <div class="flex justify-between text-xs text-gray-500 mb-1">
-                  <span>3 of 5 milestones done</span>
-                  <span class="font-semibold text-gray-700">60%</span>
-                </div>
-                <div class="h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                  <div class="h-full bg-gradient-to-r from-emerald-400 to-teal-500 rounded-full progress-bar-inner" style="width:60%"></div>
-                </div>
-              </div>
-            </div>
-            <div class="text-right flex-shrink-0">
-              <p class="font-extrabold text-gray-900 text-base">$18,500</p>
-              <p class="text-xs text-gray-400 mt-0.5">Due Jul 2</p>
-            </div>
-          </div>
-
-          <div class="escrow-item flex flex-col sm:flex-row sm:items-center gap-4 p-4 rounded-xl border border-red-100 bg-red-50/40 cursor-pointer hover:bg-red-50 transition" onclick="openEscrowDetail(this)">
-            <div class="w-11 h-11 rounded-xl bg-red-100 flex items-center justify-center flex-shrink-0">
-              <svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
-            </div>
-            <div class="flex-1 min-w-0">
-              <div class="flex items-center gap-2 flex-wrap">
-                <p class="font-semibold text-gray-900 text-sm">Vehicle Purchase – BMW X5</p>
-                <span class="badge-disputed text-xs font-bold px-2.5 py-0.5 rounded-full">Disputed</span>
-              </div>
-              <p class="text-xs text-gray-500 mt-0.5">Seller: Carlos Rivera · ID: ESC-20318</p>
-              <div class="mt-2">
-                <div class="flex justify-between text-xs text-gray-500 mb-1">
-                  <span>Awaiting arbitration decision</span>
-                  <span class="font-semibold text-red-600">Paused</span>
-                </div>
-                <div class="h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                  <div class="h-full bg-red-400 rounded-full progress-bar-inner" style="width:35%"></div>
-                </div>
-              </div>
-            </div>
-            <div class="text-right flex-shrink-0">
-              <p class="font-extrabold text-gray-900 text-base">$24,000</p>
-              <p class="text-xs text-red-500 mt-0.5 font-medium">Dispute open</p>
-            </div>
-          </div>
-
-          <div class="escrow-item flex flex-col sm:flex-row sm:items-center gap-4 p-4 rounded-xl border border-gray-100 hover:border-indigo-200 hover:bg-indigo-50/30 transition cursor-pointer" onclick="openEscrowDetail(this)">
-            <div class="w-11 h-11 rounded-xl bg-amber-100 flex items-center justify-center flex-shrink-0">
-              <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"/></svg>
-            </div>
-            <div class="flex-1 min-w-0">
-              <div class="flex items-center gap-2 flex-wrap">
-                <p class="font-semibold text-gray-900 text-sm">Brand Design Project</p>
-                <span class="badge-pending text-xs font-bold px-2.5 py-0.5 rounded-full">Pending</span>
-              </div>
-              <p class="text-xs text-gray-500 mt-0.5">Freelancer: Sara Kim · ID: ESC-20457</p>
-              <div class="mt-2">
-                <div class="flex justify-between text-xs text-gray-500 mb-1">
-                  <span>Awaiting seller confirmation</span>
-                  <span class="font-semibold text-gray-700">10%</span>
-                </div>
-                <div class="h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                  <div class="h-full bg-amber-400 rounded-full progress-bar-inner" style="width:10%"></div>
-                </div>
-              </div>
-            </div>
-            <div class="text-right flex-shrink-0">
-              <p class="font-extrabold text-gray-900 text-base">$3,200</p>
-              <p class="text-xs text-gray-400 mt-0.5">Due Jun 28</p>
-            </div>
-          </div>
+  <!-- ================= AUTH PAGE (LOGIN SCREEN) ================= -->
+  <div id="authScreen" class="flex-1 flex items-center justify-center p-4">
+    <div class="card-glass w-full max-w-md rounded-2xl p-8 text-center fade-in">
+      <div class="flex justify-center gap-3 mb-6 items-center">
+        <img class="brand-seal" src="wym-seal.jpeg" alt="Wyoming seal" onerror="this.src='https://images.unsplash.com/photo-1599305445671-ac291c95aba9?auto=format&fit=crop&w=120&q=80'" />
+        <div class="text-left">
+          <h2 class="font-extrabold text-brand-600 text-xl tracking-tight leading-tight">Meridian Trust LLC</h2>
+          <p class="text-xs text-gray-400 font-medium">Business Portal & Service Desk</p>
         </div>
       </div>
 
-      <!-- Right Column -->
-      <div class="flex flex-col gap-6">
+      <h3 class="text-lg font-bold text-gray-800 mb-2">Sign in to your account</h3>
+      <p class="text-xs text-gray-400 mb-6">Enter your authorized email credentials to open your dashboard file.</p>
 
-        <!-- Quick Actions -->
-        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm fade-in p-5">
-          <h2 class="font-bold text-gray-900 mb-4">Quick Actions</h2>
-          <div class="grid grid-cols-2 gap-3">
-            <button onclick="openNewEscrowModal()" class="flex flex-col items-center gap-2 p-4 rounded-xl bg-indigo-50 hover:bg-indigo-100 transition group">
-              <div class="w-9 h-9 rounded-lg bg-indigo-500 flex items-center justify-center group-hover:scale-110 transition">
-                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
-              </div>
-              <span class="text-xs font-semibold text-indigo-700 text-center">New Escrow</span>
-            </button>
-            <button class="flex flex-col items-center gap-2 p-4 rounded-xl bg-violet-50 hover:bg-violet-100 transition group">
-              <div class="w-9 h-9 rounded-lg bg-violet-500 flex items-center justify-center group-hover:scale-110 transition">
-                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
-              </div>
-              <span class="text-xs font-semibold text-violet-700 text-center">Deposit Funds</span>
-            </button>
-            <button class="flex flex-col items-center gap-2 p-4 rounded-xl bg-emerald-50 hover:bg-emerald-100 transition group">
-              <div class="w-9 h-9 rounded-lg bg-emerald-500 flex items-center justify-center group-hover:scale-110 transition">
-                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-              </div>
-              <span class="text-xs font-semibold text-emerald-700 text-center">Release Funds</span>
-            </button>
-            <button class="flex flex-col items-center gap-2 p-4 rounded-xl bg-rose-50 hover:bg-rose-100 transition group">
-              <div class="w-9 h-9 rounded-lg bg-rose-500 flex items-center justify-center group-hover:scale-110 transition">
-                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9"/></svg>
-              </div>
-              <span class="text-xs font-semibold text-rose-700 text-center">File Dispute</span>
-            </button>
-          </div>
-        </div>
-
-        <!-- Wallet Balance -->
-        <div class="rounded-2xl overflow-hidden shadow-sm fade-in" style="background: linear-gradient(135deg,#4f46e5,#7c3aed,#a855f7);">
-          <div class="p-5 relative">
-            <div class="absolute inset-0 opacity-10">
-              <svg width="100%" height="100%" viewBox="0 0 200 120" preserveAspectRatio="none">
-                <circle cx="160" cy="20" r="60" fill="white"/>
-                <circle cx="40" cy="100" r="40" fill="white"/>
-              </svg>
-            </div>
-            <div class="relative">
-              <p class="text-indigo-200 text-xs font-semibold uppercase tracking-widest">Wallet Balance</p>
-              <p class="text-3xl font-extrabold text-white mt-1">$12,450<span class="text-lg text-indigo-300">.00</span></p>
-              <div class="flex items-center gap-2 mt-4">
-                <div class="flex-1 bg-white/10 rounded-lg p-3">
-                  <p class="text-indigo-200 text-xs">Incoming</p>
-                  <p class="text-white font-bold text-sm mt-0.5">+$4,200</p>
-                </div>
-                <div class="flex-1 bg-white/10 rounded-lg p-3">
-                  <p class="text-indigo-200 text-xs">In Escrow</p>
-                  <p class="text-white font-bold text-sm mt-0.5">$84,320</p>
-                </div>
-              </div>
-              <div class="mt-4 flex gap-2">
-                <button class="flex-1 bg-white text-indigo-700 text-xs font-bold py-2.5 rounded-xl hover:bg-indigo-50 transition shadow">Add Funds</button>
-                <button class="flex-1 bg-white/20 text-white text-xs font-bold py-2.5 rounded-xl hover:bg-white/30 transition">Withdraw</button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Recent Activity -->
-        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm fade-in p-5">
-          <h2 class="font-bold text-gray-900 mb-4">Recent Activity</h2>
-          <div class="space-y-4">
-            <div class="flex gap-3">
-              <div class="flex flex-col items-center">
-                <div class="timeline-dot bg-emerald-500"></div>
-                <div class="w-px flex-1 bg-gray-100 mt-1"></div>
-              </div>
-              <div class="pb-4 flex-1 min-w-0">
-                <p class="text-sm font-semibold text-gray-800">Funds deposited</p>
-                <p class="text-xs text-gray-500">ESC-20392 · Software Dev Contract</p>
-                <div class="flex items-center justify-between mt-1">
-                  <span class="text-xs text-gray-400">Today, 9:24 AM</span>
-                  <span class="text-sm font-bold text-emerald-600">+$5,000</span>
-                </div>
-              </div>
-            </div>
-            <div class="flex gap-3">
-              <div class="flex flex-col items-center">
-                <div class="timeline-dot bg-red-400"></div>
-                <div class="w-px flex-1 bg-gray-100 mt-1"></div>
-              </div>
-              <div class="pb-4 flex-1 min-w-0">
-                <p class="text-sm font-semibold text-gray-800">Dispute filed</p>
-                <p class="text-xs text-gray-500">ESC-20318 · BMW X5 Purchase</p>
-                <div class="flex items-center justify-between mt-1">
-                  <span class="text-xs text-gray-400">Yesterday, 3:10 PM</span>
-                  <span class="text-xs font-semibold text-red-500">Urgent</span>
-                </div>
-              </div>
-            </div>
-            <div class="flex gap-3">
-              <div class="flex flex-col items-center">
-                <div class="timeline-dot bg-indigo-500"></div>
-                <div class="w-px flex-1 bg-gray-100 mt-1"></div>
-              </div>
-              <div class="pb-4 flex-1 min-w-0">
-                <p class="text-sm font-semibold text-gray-800">Milestone approved</p>
-                <p class="text-xs text-gray-500">ESC-20392 · Milestone 3 of 5</p>
-                <div class="flex items-center justify-between mt-1">
-                  <span class="text-xs text-gray-400">Jun 3, 11:00 AM</span>
-                  <span class="text-sm font-bold text-indigo-600">+$3,700</span>
-                </div>
-              </div>
-            </div>
-            <div class="flex gap-3">
-              <div class="flex flex-col items-center">
-                <div class="timeline-dot bg-amber-400"></div>
-              </div>
-              <div class="flex-1 min-w-0">
-                <p class="text-sm font-semibold text-gray-800">New escrow created</p>
-                <p class="text-xs text-gray-500">ESC-20457 · Brand Design Project</p>
-                <div class="flex items-center justify-between mt-1">
-                  <span class="text-xs text-gray-400">Jun 1, 2:45 PM</span>
-                  <span class="text-sm font-bold text-amber-600">$3,200</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ===== TRANSACTION TABLE ===== -->
-    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm fade-in">
-      <div class="px-6 py-4 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center gap-3">
-        <h2 class="font-bold text-gray-900">Transaction History</h2>
-        <div class="sm:ml-auto flex items-center gap-2 flex-wrap">
-          <select class="text-sm border border-gray-200 rounded-lg px-3 py-1.5 text-gray-600 outline-none focus:border-indigo-400">
-            <option>All Types</option>
-            <option>Deposits</option>
-            <option>Releases</option>
-            <option>Refunds</option>
-          </select>
-          <select class="text-sm border border-gray-200 rounded-lg px-3 py-1.5 text-gray-600 outline-none focus:border-indigo-400">
-            <option>Last 30 days</option>
-            <option>Last 90 days</option>
-            <option>This year</option>
-          </select>
-          <button class="flex items-center gap-1.5 text-sm border border-gray-200 rounded-lg px-3 py-1.5 text-gray-600 hover:bg-gray-50 transition">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
-            Export
-          </button>
-        </div>
-      </div>
-
-      <div class="overflow-x-auto">
-        <table class="w-full">
-          <thead>
-            <tr class="text-left border-b border-gray-50">
-              <th class="px-6 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wider">Transaction</th>
-              <th class="px-4 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wider hidden sm:table-cell">Escrow ID</th>
-              <th class="px-4 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wider hidden md:table-cell">Date</th>
-              <th class="px-4 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wider">Amount</th>
-              <th class="px-4 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wider">Status</th>
-              <th class="px-4 py-3"></th>
-            </tr>
-          </thead>
-          <tbody id="txBody" class="divide-y divide-gray-50">
-          </tbody>
-        </table>
-      </div>
-
-      <div class="px-6 py-4 border-t border-gray-100 flex flex-col sm:flex-row items-center justify-between gap-3">
-        <p class="text-sm text-gray-500">Showing <span class="font-semibold text-gray-700">1–6</span> of <span class="font-semibold text-gray-700">24</span> transactions</p>
-        <div class="flex items-center gap-1">
-          <button class="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 text-gray-400 hover:bg-gray-50 transition text-sm">‹</button>
-          <button class="w-8 h-8 flex items-center justify-center rounded-lg bg-indigo-500 text-white text-sm font-bold">1</button>
-          <button class="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 transition text-sm">2</button>
-          <button class="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 transition text-sm">3</button>
-          <button class="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 text-gray-400 hover:bg-gray-50 transition text-sm">›</button>
-        </div>
-      </div>
-    </div>
-  </main>
-</div>
-
-<!-- ===== ESCROW DETAIL MODAL ===== -->
-<div id="escrowModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
-  <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="closeEscrowModal()"></div>
-  <div class="relative bg-white rounded-2xl w-full max-w-lg shadow-2xl z-10 overflow-hidden">
-    <div class="bg-gradient-to-r from-indigo-500 to-violet-600 px-6 py-5">
-      <div class="flex items-start justify-between">
+      <form id="loginForm" class="space-y-4 text-left">
         <div>
-          <span class="text-indigo-200 text-xs font-semibold uppercase tracking-widest">Escrow Detail</span>
-          <h3 class="text-white font-extrabold text-lg mt-0.5">Real Estate – 123 Maple St</h3>
-          <p class="text-indigo-200 text-sm mt-0.5">ID: ESC-20481</p>
+          <label for="loginEmail" class="block text-xs font-semibold text-gray-600 mb-1.5 uppercase">Business Email</label>
+          <input type="email" id="loginEmail" required placeholder="client@example.com or admin@meridiantrust.local" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-800 outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100 transition" />
         </div>
-        <button onclick="closeEscrowModal()" class="text-white/70 hover:text-white mt-0.5">
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+        <div>
+          <label for="loginPassword" class="block text-xs font-semibold text-gray-600 mb-1.5 uppercase">Portal Password</label>
+          <input type="password" id="loginPassword" required placeholder="••••••••" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-800 outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100 transition" />
+        </div>
+        
+        <button type="submit" id="loginBtn" class="w-full py-3 rounded-xl font-bold text-sm btn-gradient mt-4 flex items-center justify-center">
+          Sign In
         </button>
-      </div>
-    </div>
-    <div class="p-6 space-y-5 overflow-y-auto max-h-[70vh]">
-      <div class="grid grid-cols-2 gap-4">
-        <div class="bg-gray-50 rounded-xl p-3.5">
-          <p class="text-xs text-gray-500">Total Value</p>
-          <p class="font-extrabold text-gray-900 text-lg mt-0.5">$42,000</p>
-        </div>
-        <div class="bg-gray-50 rounded-xl p-3.5">
-          <p class="text-xs text-gray-500">Released So Far</p>
-          <p class="font-extrabold text-emerald-600 text-lg mt-0.5">$27,300</p>
-        </div>
-        <div class="bg-gray-50 rounded-xl p-3.5">
-          <p class="text-xs text-gray-500">Remaining</p>
-          <p class="font-extrabold text-gray-900 text-lg mt-0.5">$14,700</p>
-        </div>
-        <div class="bg-gray-50 rounded-xl p-3.5">
-          <p class="text-xs text-gray-500">Expected Close</p>
-          <p class="font-extrabold text-gray-900 text-lg mt-0.5">Jun 15, 2025</p>
-        </div>
-      </div>
+      </form>
 
-      <div>
-        <p class="text-sm font-semibold text-gray-700 mb-3">Milestone Progress</p>
-        <div class="space-y-3">
-          <div class="flex items-center gap-3">
-            <div class="w-6 h-6 rounded-full bg-emerald-100 flex items-center justify-center flex-shrink-0">
-              <svg class="w-3.5 h-3.5 text-emerald-600" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
-            </div>
-            <div class="flex-1">
-              <p class="text-sm text-gray-700 font-medium">Inspection Completed</p>
-              <p class="text-xs text-gray-400">May 5 · $8,400</p>
-            </div>
-            <span class="text-xs font-semibold text-emerald-600">Released</span>
-          </div>
-          <div class="flex items-center gap-3">
-            <div class="w-6 h-6 rounded-full bg-emerald-100 flex items-center justify-center flex-shrink-0">
-              <svg class="w-3.5 h-3.5 text-emerald-600" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
-            </div>
-            <div class="flex-1">
-              <p class="text-sm text-gray-700 font-medium">Title Search</p>
-              <p class="text-xs text-gray-400">May 18 · $10,500</p>
-            </div>
-            <span class="text-xs font-semibold text-emerald-600">Released</span>
-          </div>
-          <div class="flex items-center gap-3">
-            <div class="w-6 h-6 rounded-full bg-emerald-100 flex items-center justify-center flex-shrink-0">
-              <svg class="w-3.5 h-3.5 text-emerald-600" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
-            </div>
-            <div class="flex-1">
-              <p class="text-sm text-gray-700 font-medium">Appraisal Approved</p>
-              <p class="text-xs text-gray-400">Jun 1 · $8,400</p>
-            </div>
-            <span class="text-xs font-semibold text-emerald-600">Released</span>
-          </div>
-          <div class="flex items-center gap-3">
-            <div class="w-6 h-6 rounded-full bg-indigo-100 flex items-center justify-center flex-shrink-0">
-              <div class="w-2 h-2 rounded-full bg-indigo-500"></div>
-            </div>
-            <div class="flex-1">
-              <p class="text-sm text-gray-700 font-medium">Final Walkthrough</p>
-              <p class="text-xs text-gray-400">Due Jun 12 · $10,500</p>
-            </div>
-            <span class="text-xs font-semibold text-indigo-500">Pending</span>
-          </div>
-          <div class="flex items-center gap-3">
-            <div class="w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0">
-              <div class="w-2 h-2 rounded-full bg-gray-300"></div>
-            </div>
-            <div class="flex-1">
-              <p class="text-sm text-gray-400 font-medium">Deed Transfer</p>
-              <p class="text-xs text-gray-400">Due Jun 15 · $4,200</p>
-            </div>
-            <span class="text-xs font-semibold text-gray-400">Locked</span>
-          </div>
-        </div>
-      </div>
+      <div id="loginError" class="mt-4 text-xs text-red-500 font-medium hidden"></div>
 
-      <div class="flex gap-3 pt-2">
-        <button class="flex-1 bg-gradient-to-r from-indigo-500 to-violet-600 text-white font-semibold py-3 rounded-xl hover:shadow-lg transition text-sm">Approve Next Milestone</button>
-        <button class="px-4 bg-red-50 text-red-600 font-semibold py-3 rounded-xl hover:bg-red-100 transition text-sm">Dispute</button>
+      <div class="mt-6 border-t border-gray-100 pt-4 text-left">
+        <p class="text-[11px] text-gray-400 leading-relaxed bg-gray-50 p-3 rounded-lg border border-gray-100">
+          <strong>Authorized Access Only:</strong> Review details are restricted to designated clients and staff. Password is <code>meridian</code> for all accounts.
+        </p>
       </div>
     </div>
   </div>
-</div>
 
-<!-- ===== NEW ESCROW MODAL ===== -->
-<div id="newEscrowModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
-  <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="closeNewEscrowModal()"></div>
-  <div class="relative bg-white rounded-2xl w-full max-w-md shadow-2xl z-10 overflow-hidden">
-    <div class="px-6 py-5 border-b border-gray-100 flex items-center justify-between">
-      <h3 class="font-bold text-gray-900 text-lg">Create New Escrow</h3>
-      <button onclick="closeNewEscrowModal()" class="text-gray-400 hover:text-gray-600">
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
-      </button>
-    </div>
-    <div class="p-6 space-y-4">
-      <div>
-        <label class="block text-xs font-semibold text-gray-600 mb-1.5 uppercase tracking-wide">Transaction Title</label>
-        <input type="text" placeholder="e.g. Freelance Website Project" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-800 outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 transition"/>
-      </div>
-      <div>
-        <label class="block text-xs font-semibold text-gray-600 mb-1.5 uppercase tracking-wide">Counterparty Email</label>
-        <input type="email" placeholder="seller@example.com" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-800 outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 transition"/>
-      </div>
-      <div class="grid grid-cols-2 gap-3">
+  <!-- ================= DASHBOARD SCREEN ================= -->
+  <div id="dashboardScreen" class="hidden flex-1 flex flex-col lg:flex-row min-h-screen">
+    
+    <!-- ===== SIDEBAR ===== -->
+    <aside class="w-full lg:w-72 bg-white border-r border-gray-100 flex flex-col shadow-xl lg:shadow-none shrink-0">
+      <!-- Header -->
+      <div class="px-6 py-5 border-b border-gray-100 flex items-center gap-3">
+        <img class="brand-seal" src="wym-seal.jpeg" alt="Wyoming seal" />
         <div>
-          <label class="block text-xs font-semibold text-gray-600 mb-1.5 uppercase tracking-wide">Total Amount</label>
-          <div class="flex items-center border border-gray-200 rounded-xl overflow-hidden focus-within:border-indigo-400 focus-within:ring-2 focus-within:ring-indigo-100 transition">
-            <span class="px-3 bg-gray-50 text-gray-500 text-sm border-r border-gray-200 py-2.5">$</span>
-            <input type="number" placeholder="0.00" class="flex-1 px-3 py-2.5 text-sm text-gray-800 outline-none"/>
+          <p class="font-extrabold text-brand-500 text-base leading-tight">Meridian Trust</p>
+          <p class="text-[11px] text-brand-teal font-semibold tracking-wider uppercase">Business Portal</p>
+        </div>
+      </div>
+
+      <!-- Nav Links -->
+      <nav class="flex-1 px-4 py-6 space-y-1 overflow-y-auto" id="sidebarNav">
+        <!-- Renders based on role -->
+      </nav>
+
+      <!-- User Profile Card -->
+      <div class="px-4 py-4 border-t border-gray-100">
+        <div class="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-gray-50 border border-gray-100">
+          <div class="w-9 h-9 rounded-full bg-brand-500 text-white font-extrabold text-xs flex items-center justify-center border-2 border-brand-100 shrink-0" id="userAvatar">
+            MT
           </div>
-        </div>
-        <div>
-          <label class="block text-xs font-semibold text-gray-600 mb-1.5 uppercase tracking-wide">Category</label>
-          <select class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-700 outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 transition appearance-none bg-white">
-            <option>Real Estate</option>
-            <option>Freelance</option>
-            <option>Vehicle</option>
-            <option>Product</option>
-            <option>Other</option>
-          </select>
-        </div>
-      </div>
-      <div>
-        <label class="block text-xs font-semibold text-gray-600 mb-1.5 uppercase tracking-wide">Your Role</label>
-        <div class="grid grid-cols-2 gap-3">
-          <label class="flex items-center gap-2.5 p-3 border-2 border-indigo-500 bg-indigo-50 rounded-xl cursor-pointer">
-            <input type="radio" name="role" value="buyer" checked class="accent-indigo-600"/>
-            <div>
-              <p class="text-sm font-semibold text-gray-800">Buyer</p>
-              <p class="text-xs text-gray-400">I'm sending funds</p>
-            </div>
-          </label>
-          <label class="flex items-center gap-2.5 p-3 border-2 border-gray-200 rounded-xl cursor-pointer hover:border-indigo-300 transition">
-            <input type="radio" name="role" value="seller" class="accent-indigo-600"/>
-            <div>
-              <p class="text-sm font-semibold text-gray-800">Seller</p>
-              <p class="text-xs text-gray-400">I'm receiving funds</p>
-            </div>
-          </label>
-        </div>
-      </div>
-      <div>
-        <label class="block text-xs font-semibold text-gray-600 mb-1.5 uppercase tracking-wide">Inspection Period (days)</label>
-        <input type="number" placeholder="7" value="7" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-800 outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 transition"/>
-      </div>
-      <div class="bg-indigo-50 rounded-xl p-3.5 flex gap-3">
-        <svg class="w-5 h-5 text-indigo-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-        <p class="text-xs text-indigo-700">Service fee: <strong>0.89%</strong> of transaction value. An invite will be sent to the counterparty to accept the escrow terms.</p>
-      </div>
-      <div class="flex gap-3 pt-1">
-        <button onclick="closeNewEscrowModal()" class="flex-1 border-2 border-gray-200 text-gray-600 font-semibold py-3 rounded-xl hover:bg-gray-50 transition text-sm">Cancel</button>
-        <button onclick="submitNewEscrow()" class="flex-1 bg-gradient-to-r from-indigo-500 to-violet-600 text-white font-semibold py-3 rounded-xl hover:shadow-lg hover:scale-[1.02] transition text-sm">Create Escrow</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ===== SUCCESS TOAST ===== -->
-<div id="toast" class="hidden fixed bottom-6 right-6 z-[60] bg-gray-900 text-white px-5 py-3.5 rounded-2xl shadow-2xl flex items-center gap-3 text-sm font-medium" style="min-width:280px">
-  <div class="w-7 h-7 rounded-full bg-emerald-500 flex items-center justify-center flex-shrink-0">
-    <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
-  </div>
-  <p id="toastMsg">Escrow created successfully!</p>
-</div>
-
-
-<script>
-  // === Sidebar Toggle ===
-  function toggleSidebar() {
-    const s = document.getElementById('sidebar');
-    const o = document.getElementById('mobileOverlay');
-    s.classList.toggle('open');
-    o.classList.toggle('open');
-  }
-
-  // === Active nav ===
-  function setActive(el, page) {
-    document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
-    el.classList.add('active');
-    if (window.innerWidth < 1024) toggleSidebar();
-  }
-
-  // === Tab switch ===
-  function switchTab(el, tab) {
-    document.querySelectorAll('.tab-active').forEach(t => {
-      t.classList.remove('tab-active');
-      t.classList.add('text-gray-500');
-    });
-    el.classList.add('tab-active');
-    el.classList.remove('text-gray-500');
-  }
-
-  // === Escrow Detail Modal ===
-  function openEscrowDetail(el) {
-    document.getElementById('escrowModal').classList.remove('hidden');
-    document.body.style.overflow = 'hidden';
-  }
-  function closeEscrowModal() {
-    document.getElementById('escrowModal').classList.add('hidden');
-    document.body.style.overflow = '';
-  }
-
-  // === New Escrow Modal ===
-  function openNewEscrowModal() {
-    document.getElementById('newEscrowModal').classList.remove('hidden');
-    document.body.style.overflow = 'hidden';
-  }
-  function closeNewEscrowModal() {
-    document.getElementById('newEscrowModal').classList.add('hidden');
-    document.body.style.overflow = '';
-  }
-  function submitNewEscrow() {
-    closeNewEscrowModal();
-    showToast('Escrow created & invite sent! 🎉');
-  }
-
-  // === Toast ===
-  function showToast(msg) {
-    const t = document.getElementById('toast');
-    const m = document.getElementById('toastMsg');
-    m.textContent = msg;
-    t.classList.remove('hidden');
-    t.style.animation = 'fadeInUp .4s ease both';
-    setTimeout(() => {
-      t.style.animation = '';
-      t.classList.add('hidden');
-    }, 3500);
-  }
-
-  // === Build Transaction Table ===
-  const transactions = [
-    { desc: 'Deposit – Escrow Created', escrow: 'ESC-20457', date: 'Jun 1, 2025', amount: '+$3,200', type: 'deposit', status: 'Completed' },
-    { desc: 'Milestone Release #3', escrow: 'ESC-20392', date: 'Jun 1, 2025', amount: '+$3,700', type: 'release', status: 'Completed' },
-    { desc: 'Deposit – Milestone Fund', escrow: 'ESC-20392', date: 'Jun 4, 2025', amount: '+$5,000', type: 'deposit', status: 'Completed' },
-    { desc: 'Dispute Freeze', escrow: 'ESC-20318', date: 'Jun 3, 2025', amount: '$24,000', type: 'dispute', status: 'Disputed' },
-    { desc: 'Milestone Release #2', escrow: 'ESC-20392', date: 'May 28, 2025', amount: '+$3,700', type: 'release', status: 'Completed' },
-    { desc: 'Appraisal – Milestone #3', escrow: 'ESC-20481', date: 'Jun 1, 2025', amount: '+$8,400', type: 'release', status: 'Completed' },
-  ];
-
-  const typeColors = {
-    deposit: 'text-emerald-600',
-    release: 'text-indigo-600',
-    dispute: 'text-red-500',
-  };
-  const statusBadge = {
-    Completed: 'badge-completed',
-    Disputed:  'badge-disputed',
-    Pending:   'badge-pending',
-  };
-
-  const tbody = document.getElementById('txBody');
-  transactions.forEach(tx => {
-    const tr = document.createElement('tr');
-    tr.className = 'hover:bg-gray-50/60 transition';
-    tr.innerHTML = `
-      <td class="px-6 py-3.5">
-        <div class="flex items-center gap-3">
-          <div class="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center flex-shrink-0">
-            <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+          <div class="flex-1 min-w-0">
+            <p class="text-xs font-semibold text-gray-800 truncate" id="userName">User Name</p>
+            <p class="text-[10px] text-gray-400 truncate" id="userEmail">user@example.com</p>
+          </div>
+          <button onclick="handleLogout()" title="Sign Out" class="p-1 text-gray-400 hover:text-red-500 transition">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
             </svg>
-          </div>
-          <span class="text-sm font-medium text-gray-800">${tx.desc}</span>
+          </button>
         </div>
-      </td>
-      <td class="px-4 py-3.5 hidden sm:table-cell">
-        <span class="text-xs font-mono text-gray-500 bg-gray-100 px-2 py-1 rounded">${tx.escrow}</span>
-      </td>
-      <td class="px-4 py-3.5 text-sm text-gray-500 hidden md:table-cell">${tx.date}</td>
-      <td class="px-4 py-3.5">
-        <span class="text-sm font-bold ${typeColors[tx.type]}">${tx.amount}</span>
-      </td>
-      <td class="px-4 py-3.5">
-        <span class="text-xs font-semibold px-2.5 py-1 rounded-full ${statusBadge[tx.status] || 'badge-pending'}">${tx.status}</span>
-      </td>
-      <td class="px-4 py-3.5">
-        <button class="text-gray-400 hover:text-indigo-500 transition">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/>
+      </div>
+    </aside>
+
+    <!-- ===== MAIN CONTENT AREA ===== -->
+    <div class="flex-1 flex flex-col min-h-screen overflow-hidden">
+      <!-- Header -->
+      <header class="bg-white border-b border-gray-100 px-6 py-4 flex items-center gap-4 sticky top-0 z-20 shadow-sm shrink-0">
+        <div>
+          <h1 class="text-base font-bold text-gray-900 flex items-center gap-2">
+            <span id="welcomeMessage">Good morning</span> 
+            <span class="pill good text-[10px]" id="roleBadge">CLIENT</span>
+          </h1>
+          <p class="text-[11px] text-gray-400" id="headerSubtitle">Authorized Business Account Support coordination file.</p>
+        </div>
+
+        <div class="ml-auto flex items-center gap-3">
+          <!-- Refresh -->
+          <button onclick="refreshData()" class="p-2 rounded-xl bg-gray-50 border border-gray-200 hover:border-brand-500 hover:bg-white text-gray-600 transition" title="Reload details">
+            <svg class="w-4.5 h-4.5 w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 1121.21 7.89H17v4.2"/>
+            </svg>
+          </button>
+        </div>
+      </header>
+
+      <!-- Scrollable Main View -->
+      <main class="flex-1 overflow-y-auto p-6 space-y-6">
+
+        <!-- ================= ADMIN WORKFLOW ================= -->
+        <div id="adminView" class="hidden space-y-6 fade-in">
+          
+          <!-- Masters/Submissions Split -->
+          <div class="grid grid-cols-1 xl:grid-cols-4 gap-6">
+            
+            <!-- Left submissions selector -->
+            <div class="xl:col-span-1 bg-white border border-gray-100 rounded-2xl p-4 shadow-sm h-[680px] flex flex-col">
+              <h3 class="font-extrabold text-brand-600 text-sm mb-3 uppercase tracking-wider">Review Submissions</h3>
+              <p class="text-[11px] text-gray-400 mb-4">Select an active client file to update, review, or message.</p>
+              
+              <div id="adminSubmissionsList" class="flex-1 overflow-y-auto space-y-2 pr-1">
+                <!-- Submissions buttons render dynamically -->
+              </div>
+            </div>
+
+            <!-- Main selected case details -->
+            <div class="xl:col-span-3 bg-white border border-gray-100 rounded-2xl shadow-sm overflow-hidden flex flex-col">
+              
+              <!-- Case header bar -->
+              <div class="bg-gradient-to-r from-brand-500 to-brand-teal px-6 py-4 flex items-center justify-between text-white shrink-0">
+                <div>
+                  <span class="text-brand-100 text-[10px] uppercase font-bold tracking-widest">Active Coordination File</span>
+                  <h2 class="text-base font-black" id="activeCaseTitle">No Active Case Selected</h2>
+                </div>
+                <div id="activeCaseStatusBadge"></div>
+              </div>
+
+              <!-- Case content sections -->
+              <div class="p-6 overflow-y-auto space-y-6 flex-1 max-h-[600px]">
+                
+                <!-- Overview Stats Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4" id="adminCaseStatsRow">
+                  <!-- Stats render here -->
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                  
+                  <!-- Left: Detailed Edit Accordion and Preloading -->
+                  <div class="lg:col-span-7 space-y-6">
+                    
+                    <div class="border border-gray-200 rounded-xl p-5 bg-white">
+                      <h4 class="font-extrabold text-gray-800 text-sm mb-3">Case Administration</h4>
+                      <p class="text-[11px] text-gray-400 mb-4">Admins can update core workflow reference details below.</p>
+                      
+                      <!-- Core Edit Fields -->
+                      <div class="grid grid-cols-2 gap-3 mb-4">
+                        <div>
+                          <label for="editCaseNumber" class="block text-[10px] font-semibold text-gray-500 uppercase mb-1">Case Number</label>
+                          <input type="text" id="editCaseNumber" class="border border-gray-200 rounded-lg px-3 py-1.5 text-xs w-full font-mono" />
+                        </div>
+                        <div>
+                          <label for="editStatus" class="block text-[10px] font-semibold text-gray-500 uppercase mb-1">Case Status</label>
+                          <select id="editStatus" class="border border-gray-200 rounded-lg px-3 py-1.5 text-xs w-full">
+                            <option>Pending Review</option>
+                            <option>Information Requested</option>
+                            <option>Administrative Review</option>
+                            <option>Active Hold</option>
+                            <option>Waiting for Business Documents</option>
+                            <option>Ready for Release</option>
+                            <option>Closed</option>
+                          </select>
+                        </div>
+                      </div>
+
+                      <div class="grid grid-cols-2 gap-3 mb-4">
+                        <div>
+                          <label for="editAmount" class="block text-[10px] font-semibold text-gray-500 uppercase mb-1">Admin Reference Amount ($)</label>
+                          <input type="number" id="editAmount" step="0.01" class="border border-gray-200 rounded-lg px-3 py-1.5 text-xs w-full" />
+                        </div>
+                        <div>
+                          <label for="editEmail" class="block text-[10px] font-semibold text-gray-500 uppercase mb-1">Contact Email</label>
+                          <input type="email" id="editEmail" class="border border-gray-200 rounded-lg px-3 py-1.5 text-xs w-full" />
+                        </div>
+                      </div>
+
+                      <!-- Detailed Accordion Expansion -->
+                      <details class="group border border-gray-100 rounded-lg overflow-hidden bg-gray-50/50">
+                        <summary class="flex justify-between items-center px-4 py-2 text-xs font-bold text-brand-500 cursor-pointer select-none border-b border-gray-100">
+                          <span>Detailed Compliance & Penalties</span>
+                          <span class="group-open:rotate-180 transition-transform">▼</span>
+                        </summary>
+                        <div class="p-4 space-y-3 bg-white">
+                          <div class="grid grid-cols-2 gap-3">
+                            <div>
+                              <label for="editAccountNumber" class="block text-[9px] font-semibold text-gray-500 uppercase mb-0.5">Account Number</label>
+                              <input type="text" id="editAccountNumber" class="border border-gray-200 rounded-md px-2.5 py-1.5 text-xs w-full" />
+                            </div>
+                            <div>
+                              <label for="editType" class="block text-[9px] font-semibold text-gray-500 uppercase mb-0.5">Request Type</label>
+                              <input type="text" id="editType" class="border border-gray-200 rounded-md px-2.5 py-1.5 text-xs w-full" />
+                            </div>
+                          </div>
+
+                          <div class="grid grid-cols-3 gap-2">
+                            <div>
+                              <label for="editFeeDebt" class="block text-[9px] font-semibold text-gray-500 uppercase mb-0.5">Fee Debt ($)</label>
+                              <input type="number" step="0.01" id="editFeeDebt" class="border border-gray-200 rounded-md px-2.5 py-1.5 text-xs w-full" />
+                            </div>
+                            <div>
+                              <label for="editFatcaPenalty" class="block text-[9px] font-semibold text-gray-500 uppercase mb-0.5">FATCA Penalty ($)</label>
+                              <input type="number" step="0.01" id="editFatcaPenalty" class="border border-gray-200 rounded-md px-2.5 py-1.5 text-xs w-full" />
+                            </div>
+                            <div>
+                              <label for="editFbarPenalty" class="block text-[9px] font-semibold text-gray-500 uppercase mb-0.5">FBAR Penalty ($)</label>
+                              <input type="number" step="0.01" id="editFbarPenalty" class="border border-gray-200 rounded-md px-2.5 py-1.5 text-xs w-full" />
+                            </div>
+                          </div>
+
+                          <div class="grid grid-cols-2 gap-3">
+                            <div>
+                              <label for="editHoldAmount" class="block text-[9px] font-semibold text-gray-500 uppercase mb-0.5">Active Hold Amount ($)</label>
+                              <input type="number" step="0.01" id="editHoldAmount" class="border border-gray-200 rounded-md px-2.5 py-1.5 text-xs w-full" />
+                            </div>
+                            <div>
+                              <label for="editRulingDate" class="block text-[9px] font-semibold text-gray-500 uppercase mb-0.5">Ruling Date</label>
+                              <input type="text" id="editRulingDate" class="border border-gray-200 rounded-md px-2.5 py-1.5 text-xs w-full" />
+                            </div>
+                          </div>
+
+                          <div>
+                            <label for="editAgencyReference" class="block text-[9px] font-semibold text-gray-500 uppercase mb-0.5">Agency Reference</label>
+                            <input type="text" id="editAgencyReference" class="border border-gray-200 rounded-md px-2.5 py-1.5 text-xs w-full" />
+                          </div>
+
+                          <div>
+                            <label for="editNotes" class="block text-[9px] font-semibold text-gray-500 uppercase mb-0.5">Review Notes</label>
+                            <textarea id="editNotes" rows="3" class="border border-gray-200 rounded-md px-2.5 py-1.5 text-xs w-full resize-y"></textarea>
+                          </div>
+                        </div>
+                      </details>
+
+                      <div class="flex gap-3 mt-4">
+                        <button onclick="saveAdminReview()" class="flex-1 py-2 rounded-lg font-bold text-xs btn-gradient">
+                          Save Case File
+                        </button>
+                        <button onclick="deleteAdminSubmission()" class="px-4 py-2 bg-red-50 text-red-600 hover:bg-red-100 rounded-lg font-bold text-xs transition">
+                          Delete Case
+                        </button>
+                      </div>
+                    </div>
+
+                    <!-- Preload Client Documents (Storage Upload) -->
+                    <div class="border border-gray-200 rounded-xl p-5 bg-white">
+                      <h4 class="font-extrabold text-gray-800 text-sm mb-1">Preload & Scan Client Documents</h4>
+                      <p class="text-[11px] text-gray-400 mb-4">Admins can scan folders to preload secure documents on Supabase Storage bucket.</p>
+                      
+                      <div class="p-4 border-2 border-dashed border-gray-200 rounded-xl text-center bg-gray-50">
+                        <input type="file" id="adminFolderInput" webkitdirectory directory multiple class="hidden" onchange="handleAdminFolderSelect(event)" />
+                        <button onclick="triggerFolderSelect()" class="px-4 py-2.5 rounded-lg font-bold text-xs btn-gradient mb-2 inline-flex items-center gap-1.5">
+                          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+                          </svg>
+                          Scan & Upload Folder
+                        </button>
+                        <p class="text-[10px] text-gray-400 leading-tight">Select folders on your local computer to parse, upload to Supabase, and dynamically link.</p>
+                        
+                        <div id="uploadStatusText" class="mt-3 text-[11px] font-bold text-brand-teal hidden"></div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Right: Timeline and messages -->
+                  <div class="lg:col-span-5 space-y-6">
+                    <!-- Messaging dialogue -->
+                    <div class="border border-gray-200 rounded-xl p-5 bg-white flex flex-col h-[320px]">
+                      <h4 class="font-extrabold text-gray-800 text-sm mb-3">Case Messages</h4>
+                      
+                      <div id="adminMessagesLog" class="message-log flex-1">
+                        <!-- Message items populate -->
+                      </div>
+
+                      <div class="mt-3 flex gap-2 shrink-0">
+                        <input type="text" id="adminMessageInput" placeholder="Reply to business contact..." class="border border-gray-200 rounded-lg px-3 py-1.5 text-xs flex-1 outline-none focus:border-brand-500" />
+                        <button onclick="sendReviewMessage('admin')" class="px-3 py-1.5 rounded-lg btn-gradient text-xs font-bold shrink-0">Reply</button>
+                      </div>
+                    </div>
+
+                    <!-- Timeline events -->
+                    <div class="border border-gray-200 rounded-xl p-5 bg-white">
+                      <div class="flex items-center justify-between mb-3">
+                        <h4 class="font-extrabold text-gray-800 text-sm">Activity Logs</h4>
+                        <button onclick="openTimelineCorrections()" class="px-2 py-1 bg-brand-50 text-brand-500 border border-brand-100 rounded-md font-bold text-[10px] hover:bg-brand-100 transition">
+                          Correct Logs
+                        </button>
+                      </div>
+                      <div id="adminTimelineView" class="timeline max-h-[220px] overflow-y-auto pr-1">
+                        <!-- Timeline entries populate -->
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+
+                <!-- Simulation Message Board Prefill Section -->
+                <div class="border border-gray-100 rounded-xl p-5 bg-gray-50/50">
+                  <h4 class="font-extrabold text-gray-800 text-sm mb-1">Simulated Client Message Board</h4>
+                  <p class="text-[11px] text-gray-400 mb-4">Simulate incoming client messages directly linked to this case file.</p>
+                  
+                  <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <div>
+                      <label class="block text-[10px] text-gray-500 font-semibold mb-1 uppercase">Client Name</label>
+                      <input type="text" id="simClientName" readonly class="bg-gray-100 border border-gray-200 rounded-lg px-3 py-1.5 text-xs w-full text-gray-500 font-semibold" />
+                    </div>
+                    <div>
+                      <label class="block text-[10px] text-gray-500 font-semibold mb-1 uppercase">Client Email</label>
+                      <input type="text" id="simClientEmail" readonly class="bg-gray-100 border border-gray-200 rounded-lg px-3 py-1.5 text-xs w-full text-gray-500 font-semibold" />
+                    </div>
+                    <div class="flex items-end">
+                      <input type="text" id="simMessageText" placeholder="I have uploaded the tax reconciliation..." class="border border-gray-200 rounded-lg px-3 py-1.5 text-xs flex-1 mr-2 outline-none focus:border-brand-500" />
+                      <button onclick="submitSimulatedClientMessage()" class="px-4 py-1.5 bg-brand-teal text-white rounded-lg text-xs font-bold hover:bg-brand-teal/90 transition shrink-0">Post</button>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+
+        <!-- ================= CLIENT WORKFLOW ================= -->
+        <div id="clientView" class="hidden space-y-6 fade-in">
+          
+          <!-- Key KPI stats row -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4" id="clientStatsRow">
+            <!-- Stats populated dynamically -->
+          </div>
+
+          <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+            
+            <!-- Left: Case Details overview and timelines -->
+            <div class="xl:col-span-2 space-y-6">
+              
+              <!-- Case Description & Detailed read-only values -->
+              <div class="bg-white border border-gray-100 rounded-2xl shadow-sm p-6">
+                <h3 class="font-extrabold text-brand-600 text-sm mb-4 uppercase tracking-wider">Business Case Overview</h3>
+                
+                <div class="border border-gray-100 rounded-xl p-4 bg-gray-50 mb-6">
+                  <div class="row between flex flex-wrap gap-2 items-center mb-3">
+                    <strong class="text-sm text-gray-800" id="clientCaseNumberLabel">Case Number</strong>
+                    <span class="pill good text-xs" id="clientStatusBadge">Review</span>
+                  </div>
+                  <p class="text-xs text-gray-500 leading-relaxed" id="clientNotesText">Case details pending manual review from authorized coordination administrators.</p>
+                </div>
+
+                <!-- Structured info grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="clientCaseDetailsGrid">
+                  <!-- Populated here -->
+                </div>
+              </div>
+
+              <!-- Activity Timeline read-only -->
+              <div class="bg-white border border-gray-100 rounded-2xl shadow-sm p-6">
+                <h3 class="font-extrabold text-brand-600 text-sm mb-4 uppercase tracking-wider">Activity History</h3>
+                <p class="text-[11px] text-gray-400 mb-4">Official timeline log recorded by compliance coordination staff.</p>
+                
+                <div id="clientTimelineView" class="timeline">
+                  <!-- Populated here -->
+                </div>
+              </div>
+
+            </div>
+
+            <!-- Right: Preloaded Downloadable Documents and message log -->
+            <div class="xl:col-span-1 space-y-6">
+              
+              <!-- Secure documents folder download section -->
+              <div class="bg-white border border-gray-100 rounded-2xl shadow-sm p-6">
+                <h3 class="font-extrabold text-brand-600 text-sm mb-2 uppercase tracking-wider">Downloadable Documents</h3>
+                <p class="text-[11px] text-gray-400 mb-4">Access secure documents preloaded by your administrator from your folder.</p>
+                
+                <div class="p-4 border-2 border-dashed border-gray-150 rounded-xl bg-brand-50/50 mb-4">
+                  <div class="flex justify-between items-center flex-wrap gap-2 mb-3">
+                    <span class="text-xs font-semibold text-gray-700">Secure Folder Target:</span>
+                    <span class="pill info text-[10px]" id="clientFolderLocation">/</span>
+                  </div>
+
+                  <!-- List of preloaded items -->
+                  <div id="clientDocsList" class="space-y-2">
+                    <p class="text-[11px] text-gray-400 italic">No preloaded compliance forms detected.</p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Message Dialogue board -->
+              <div class="bg-white border border-gray-100 rounded-2xl shadow-sm p-6 flex flex-col h-[400px]">
+                <h3 class="font-extrabold text-brand-600 text-sm mb-3 uppercase tracking-wider">Support Messages</h3>
+                <p class="text-[11px] text-gray-400 mb-4">Communicate directly with administrative coordination agents.</p>
+                
+                <div id="clientMessagesLog" class="message-log flex-1">
+                  <!-- Messages -->
+                </div>
+
+                <div class="mt-3 flex gap-2 shrink-0">
+                  <input type="text" id="clientMessageInput" placeholder="Send a message..." class="border border-gray-200 rounded-lg px-3 py-1.5 text-xs flex-1 outline-none focus:border-brand-500" />
+                  <button onclick="sendReviewMessage('client')" class="px-3 py-1.5 rounded-lg btn-gradient text-xs font-bold shrink-0">Send</button>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </main>
+    </div>
+
+  </div>
+
+  <!-- ================= TIMELINE CORRECTIONS MODAL (ADMIN ONLY) ================= -->
+  <div id="timelineCorrectionsModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/55 backdrop-blur-sm fade-in">
+    <div class="bg-white rounded-2xl w-full max-w-2xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh]">
+      <div class="bg-gradient-to-r from-brand-500 to-brand-teal px-6 py-4 flex items-center justify-between text-white shrink-0">
+        <div>
+          <h3 class="font-extrabold text-sm uppercase tracking-wider text-brand-100">Administrative Tool</h3>
+          <h2 class="text-base font-black">Silent Timeline Corrections</h2>
+        </div>
+        <button onclick="closeTimelineCorrections()" class="text-white/80 hover:text-white">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
           </svg>
         </button>
-      </td>
-    `;
-    tbody.appendChild(tr);
-  });
+      </div>
 
-  // Animate progress bars on load
-  window.addEventListener('load', () => {
-    document.querySelectorAll('.progress-bar-inner').forEach(bar => {
-      const w = bar.style.width;
-      bar.style.width = '0';
-      setTimeout(() => { bar.style.width = w; }, 200);
+      <div class="p-6 overflow-y-auto space-y-4 flex-1 bg-gray-50/50" id="correctionsListContainer">
+        <!-- Renders event editors -->
+      </div>
+
+      <div class="px-6 py-4 border-t border-gray-100 bg-white flex justify-between gap-3 shrink-0">
+        <button onclick="addNewBlankTimelineEvent()" class="px-4 py-2 bg-brand-50 text-brand-500 rounded-lg font-bold text-xs border border-brand-100 hover:bg-brand-100 transition">
+          Add Custom Event
+        </button>
+        <div class="flex gap-2">
+          <button onclick="closeTimelineCorrections()" class="px-4 py-2 border border-gray-200 rounded-lg font-bold text-xs text-gray-600 hover:bg-gray-50 transition">Cancel</button>
+          <button onclick="saveTimelineCorrections()" class="px-4 py-2 rounded-lg font-bold text-xs btn-gradient">Save Corrections</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="hidden fixed bottom-6 right-6 z-50 bg-brand-500 text-white rounded-xl shadow-2xl border border-brand-600 px-5 py-3 flex items-center gap-3">
+    <div class="w-5 h-5 bg-brand-teal rounded-full text-white font-extrabold text-xs flex items-center justify-center">✓</div>
+    <span class="text-xs font-semibold" id="toastMsg">Action completed!</span>
+  </div>
+
+  <!-- ================= PORTAL LOGIC & SUPABASE BRIDGING ================= -->
+  <script>
+    // --- Supabase Config ---
+    const SUPABASE_URL = "https://lobjdcnmgwymwcniwxxh.supabase.co";
+    const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxvYmpkY25tZ3d5bXdjbml3eHhoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk2NTg4MDIsImV4cCI6MjA5NTIzNDgwMn0.kAJc_TbAoRmtiogt4jxLYr6fop9UodkzxQtQiZWLmKU";
+    const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    // --- State cache ---
+    let currentUser = null;
+    let userRole = null; // 'admin' or 'client'
+    let allSubmissions = [];
+    let selectedSubmissionId = null;
+    let selectedSubmission = null;
+    let correctionsCache = [];
+
+    // --- Format helper tools ---
+    function formatMoney(val) {
+      return Number(val || 0).toLocaleString(undefined, { style: "currency", currency: "USD" });
+    }
+    function stampNow() {
+      return new Date().toLocaleString([], { dateStyle: "medium", timeStyle: "short" });
+    }
+
+    // --- Toast triggers ---
+    function triggerToast(msg) {
+      const toast = document.getElementById("toast");
+      const toastMsg = document.getElementById("toastMsg");
+      toastMsg.textContent = msg;
+      toast.classList.remove("hidden");
+      setTimeout(() => toast.classList.add("hidden"), 3000);
+    }
+
+    // --- Session checking ---
+    window.addEventListener("load", async () => {
+      const { data: { session } } = await _supabase.auth.getSession();
+      handleAuthSession(session);
+
+      _supabase.auth.onAuthStateChange((event, session) => {
+        handleAuthSession(session);
+      });
     });
-  });
-</script>
+
+    function handleAuthSession(session) {
+      const authScreen = document.getElementById("authScreen");
+      const dashboardScreen = document.getElementById("dashboardScreen");
+
+      if (session) {
+        currentUser = session.user;
+        userRole = currentUser.user_metadata?.role || "client";
+        
+        authScreen.classList.add("hidden");
+        dashboardScreen.classList.remove("hidden");
+
+        // Profile fields
+        document.getElementById("userName").textContent = currentUser.user_metadata?.name || currentUser.email.split("@")[0];
+        document.getElementById("userEmail").textContent = currentUser.email;
+        document.getElementById("userAvatar").textContent = (currentUser.user_metadata?.name || "MT").substring(0, 2).toUpperCase();
+
+        document.getElementById("roleBadge").textContent = userRole.toUpperCase();
+        if (userRole === "admin") {
+          document.getElementById("roleBadge").className = "pill good text-[10px]";
+        } else {
+          document.getElementById("roleBadge").className = "pill info text-[10px]";
+        }
+
+        renderLayoutByRole();
+        refreshData();
+      } else {
+        currentUser = null;
+        userRole = null;
+        authScreen.classList.remove("hidden");
+        dashboardScreen.classList.add("hidden");
+      }
+    }
+
+    // --- Login form submit ---
+    document.getElementById("loginForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const email = document.getElementById("loginEmail").value.trim();
+      const password = document.getElementById("loginPassword").value;
+      const errorDiv = document.getElementById("loginError");
+      const loginBtn = document.getElementById("loginBtn");
+
+      errorDiv.classList.add("hidden");
+      loginBtn.disabled = true;
+      loginBtn.textContent = "Verifying Credentials...";
+
+      try {
+        const { data, error } = await _supabase.auth.signInWithPassword({ email, password });
+        if (error) throw error;
+      } catch (err) {
+        errorDiv.textContent = err.message || "Invalid email or security password.";
+        errorDiv.classList.remove("hidden");
+        loginBtn.disabled = false;
+        loginBtn.textContent = "Sign In";
+      }
+    });
+
+    // --- Logout Trigger ---
+    async function handleLogout() {
+      await _supabase.auth.signOut();
+    }
+
+    // --- Render Nav links by role ---
+    function renderLayoutByRole() {
+      const nav = document.getElementById("sidebarNav");
+      if (userRole === "admin") {
+        nav.innerHTML = `
+          <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest px-3 mb-2">Workspace</p>
+          <a href="#" class="sidebar-link active flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+            Case Coordination Files
+          </a>
+        `;
+        document.getElementById("adminView").classList.remove("hidden");
+        document.getElementById("clientView").classList.add("hidden");
+        document.getElementById("welcomeMessage").textContent = "Staff Dashboard: " + (currentUser.user_metadata?.name || "Admin");
+      } else {
+        nav.innerHTML = `
+          <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest px-3 mb-2">Member portal</p>
+          <a href="#" class="sidebar-link active flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+            My Secure Dashboard
+          </a>
+        `;
+        document.getElementById("adminView").classList.add("hidden");
+        document.getElementById("clientView").classList.remove("hidden");
+        document.getElementById("welcomeMessage").textContent = "Good morning, " + (currentUser.user_metadata?.name || "Client");
+      }
+    }
+
+    // ================= DATA REFRESH BRIDGES =================
+
+    async function refreshData() {
+      if (!currentUser) return;
+
+      if (userRole === "admin") {
+        // Fetch all submissions
+        const { data: submissions, error } = await _supabase
+          .from("submissions")
+          .select("*")
+          .order("created_at", { ascending: false });
+
+        if (error) {
+          triggerToast("Database fetch error: " + error.message);
+          return;
+        }
+
+        allSubmissions = submissions || [];
+        renderAdminSubmissionsSelector();
+      } else {
+        // Fetch client-specific submissions (by email matches)
+        const { data: submissions, error } = await _supabase
+          .from("submissions")
+          .select("*")
+          .eq("client_email", currentUser.email);
+
+        if (error) {
+          triggerToast("Database fetch error: " + error.message);
+          return;
+        }
+
+        allSubmissions = submissions || [];
+        if (allSubmissions.length > 0) {
+          selectedSubmission = allSubmissions[0];
+          selectedSubmissionId = selectedSubmission.id;
+          renderClientDashboard();
+        } else {
+          renderClientEmptyState();
+        }
+      }
+    }
+
+    // ================= ADMIN CONTROLLERS =================
+
+    function renderAdminSubmissionsSelector() {
+      const listContainer = document.getElementById("adminSubmissionsList");
+      listContainer.innerHTML = "";
+
+      if (allSubmissions.length === 0) {
+        listContainer.innerHTML = `<p class="text-xs text-gray-400 italic">No coordination cases loaded.</p>`;
+        document.getElementById("activeCaseTitle").textContent = "No Case Selected";
+        return;
+      }
+
+      // Default selection if none active
+      if (!selectedSubmissionId && allSubmissions.length > 0) {
+        selectedSubmissionId = allSubmissions[0].id;
+      }
+
+      allSubmissions.forEach(sub => {
+        const isSelected = sub.id === selectedSubmissionId;
+        const btn = document.createElement("button");
+        btn.className = `w-full text-left p-3.5 rounded-xl border text-xs transition duration-150 flex flex-col gap-1 ${
+          isSelected 
+            ? "border-brand-500 bg-brand-50/50 text-brand-600 font-bold" 
+            : "border-gray-100 hover:border-brand-100 bg-white"
+        }`;
+        
+        btn.onclick = () => {
+          selectedSubmissionId = sub.id;
+          renderAdminSubmissionsSelector();
+        };
+
+        btn.innerHTML = `
+          <div class="flex justify-between items-center w-full">
+            <span class="font-mono text-[10px] uppercase font-bold tracking-tight">${sub.id}</span>
+            <span class="text-[9px] font-semibold px-2 py-0.5 rounded-full ${
+              sub.status === 'Active Hold' ? 'bg-orange-100 text-orange-700' : 'bg-gray-100 text-gray-700'
+            }">${sub.status}</span>
+          </div>
+          <strong class="text-gray-800 text-[13px] mt-0.5 truncate">${sub.client_name}</strong>
+          <span class="text-[10px] text-gray-400 truncate">${sub.client_email}</span>
+        `;
+        listContainer.appendChild(btn);
+      });
+
+      // Load Details for current selected submission
+      selectedSubmission = allSubmissions.find(s => s.id === selectedSubmissionId) || null;
+      loadActiveAdminCaseFile();
+    }
+
+    async function loadActiveAdminCaseFile() {
+      if (!selectedSubmission) {
+        document.getElementById("activeCaseTitle").textContent = "No Active Case Selected";
+        return;
+      }
+
+      document.getElementById("activeCaseTitle").textContent = `${selectedSubmission.id} - ${selectedSubmission.client_name}`;
+      
+      const badgeContainer = document.getElementById("activeCaseStatusBadge");
+      badgeContainer.innerHTML = `<span class="pill good text-xs bg-white text-brand-500 border-2 border-white">${selectedSubmission.status}</span>`;
+
+      // Seeding stats cards
+      const statsRow = document.getElementById("adminCaseStatsRow");
+      statsRow.innerHTML = `
+        <div class="bg-gray-50 border border-gray-150 p-4 rounded-xl">
+          <span class="text-[10px] font-bold text-gray-400 uppercase">Case Value Reference</span>
+          <p class="text-lg font-black text-brand-600 mt-1">${formatMoney(selectedSubmission.amount)}</p>
+        </div>
+        <div class="bg-gray-50 border border-gray-150 p-4 rounded-xl">
+          <span class="text-[10px] font-bold text-gray-400 uppercase">Active hold Reference</span>
+          <p class="text-lg font-black text-orange-600 mt-1">${formatMoney(selectedSubmission.hold_amount)}</p>
+        </div>
+        <div class="bg-gray-50 border border-gray-150 p-4 rounded-xl">
+          <span class="text-[10px] font-bold text-gray-400 uppercase">Compliance Account</span>
+          <p class="text-lg font-black text-brand-teal mt-1 font-mono">${selectedSubmission.account_number || "PENDING"}</p>
+        </div>
+      `;
+
+      // Inputs prefill
+      document.getElementById("editCaseNumber").value = selectedSubmission.id;
+      document.getElementById("editStatus").value = selectedSubmission.status || "Pending Review";
+      document.getElementById("editAmount").value = selectedSubmission.amount || 0;
+      document.getElementById("editEmail").value = selectedSubmission.client_email || "";
+      
+      document.getElementById("editAccountNumber").value = selectedSubmission.account_number || "";
+      document.getElementById("editType").value = selectedSubmission.type || "";
+      document.getElementById("editFeeDebt").value = selectedSubmission.fee_debt || 0;
+      document.getElementById("editFatcaPenalty").value = selectedSubmission.fatca_penalty || 0;
+      document.getElementById("editFbarPenalty").value = selectedSubmission.fbar_penalty || 0;
+      document.getElementById("editHoldAmount").value = selectedSubmission.hold_amount || 0;
+      document.getElementById("editRulingDate").value = selectedSubmission.ruling_date || "";
+      document.getElementById("editAgencyReference").value = selectedSubmission.agency_reference || "";
+      document.getElementById("editNotes").value = selectedSubmission.notes || "";
+
+      // Message Board prefill values
+      document.getElementById("simClientName").value = selectedSubmission.client_name;
+      document.getElementById("simClientEmail").value = selectedSubmission.client_email;
+
+      // Documents scan target status
+      const statusEl = document.getElementById("uploadStatusText");
+      statusEl.classList.add("hidden");
+
+      // Load messages & timeline
+      fetchMessagesLog("adminMessagesLog", selectedSubmission.id);
+      fetchTimelineView("adminTimelineView", selectedSubmission.id);
+    }
+
+    // --- Save review logic ---
+    async function saveAdminReview() {
+      if (!selectedSubmission) return;
+
+      const newId = document.getElementById("editCaseNumber").value.trim();
+      const updatedStatus = document.getElementById("editStatus").value;
+      const updatedAmount = Number(document.getElementById("editAmount").value || 0);
+      const updatedEmail = document.getElementById("editEmail").value.trim();
+
+      const updatedAccountNumber = document.getElementById("editAccountNumber").value.trim();
+      const updatedType = document.getElementById("editType").value.trim();
+      const updatedFeeDebt = Number(document.getElementById("editFeeDebt").value || 0);
+      const updatedFatcaPenalty = Number(document.getElementById("editFatcaPenalty").value || 0);
+      const updatedFbarPenalty = Number(document.getElementById("editFbarPenalty").value || 0);
+      const updatedHoldAmount = Number(document.getElementById("editHoldAmount").value || 0);
+      const updatedRulingDate = document.getElementById("editRulingDate").value.trim();
+      const updatedAgencyReference = document.getElementById("editAgencyReference").value.trim();
+      const updatedNotes = document.getElementById("editNotes").value.trim();
+
+      // Check duplicate ID if ID changed
+      if (newId !== selectedSubmission.id) {
+        const { data: existing } = await _supabase
+          .from("submissions")
+          .select("id")
+          .eq("id", newId)
+          .maybeSingle();
+
+        if (existing) {
+          alert("Case number " + newId + " is already assigned to another client.");
+          return;
+        }
+      }
+
+      // Update in submissions table
+      const { error } = await _supabase
+        .from("submissions")
+        .update({
+          id: newId,
+          status: updatedStatus,
+          amount: updatedAmount,
+          client_email: updatedEmail,
+          account_number: updatedAccountNumber,
+          type: updatedType,
+          fee_debt: updatedFeeDebt,
+          fatca_penalty: updatedFatcaPenalty,
+          fbar_penalty: updatedFbarPenalty,
+          hold_amount: updatedHoldAmount,
+          ruling_date: updatedRulingDate,
+          agency_reference: updatedAgencyReference,
+          notes: updatedNotes
+        })
+        .eq("id", selectedSubmission.id);
+
+      if (error) {
+        triggerToast("Save Review failed: " + error.message);
+        return;
+      }
+
+      // Insert timeline event
+      await _supabase
+        .from("timeline_events")
+        .insert({
+          submission_id: newId,
+          title: "Admin Review Updated",
+          description: selectedSubmission.id !== newId 
+            ? `Authorized staff assigned case number ${newId} and updated the review details.`
+            : "Authorized staff updated the case review details.",
+          at: stampNow()
+        });
+
+      triggerToast("Case file saved successfully! 💾");
+      selectedSubmissionId = newId;
+      refreshData();
+    }
+
+    // --- Delete case logic ---
+    async function deleteAdminSubmission() {
+      if (!selectedSubmission) return;
+
+      if (!confirm(`Are you sure you want to permanently delete case ${selectedSubmission.id} for ${selectedSubmission.client_name}?`)) {
+        return;
+      }
+
+      const { error } = await _supabase
+        .from("submissions")
+        .delete()
+        .eq("id", selectedSubmission.id);
+
+      if (error) {
+        triggerToast("Delete error: " + error.message);
+        return;
+      }
+
+      triggerToast("Case " + selectedSubmission.id + " deleted successfully.");
+      selectedSubmissionId = null;
+      refreshData();
+    }
+
+    // --- File storage scanner upload ---
+    function triggerFolderSelect() {
+      if (!selectedSubmission) {
+        alert("Select an active case submission first.");
+        return;
+      }
+      document.getElementById("adminFolderInput").click();
+    }
+
+    async function handleAdminFolderSelect(e) {
+      if (!selectedSubmission) return;
+
+      const files = Array.from(e.target.files);
+      if (files.length === 0) return;
+
+      const statusEl = document.getElementById("uploadStatusText");
+      statusEl.textContent = `Scanning & Preloading ${files.length} documents...`;
+      statusEl.classList.remove("hidden");
+
+      let uploadCount = 0;
+      for (const file of files) {
+        // Upload file to client-documents Supabase bucket at email path
+        const storagePath = `${selectedSubmission.client_email}/${file.name}`;
+        const { data, error } = await _supabase.storage
+          .from("client-documents")
+          .upload(storagePath, file, { cacheControl: '3600', upsert: true });
+
+        if (error) {
+          console.error("Storage upload error for " + file.name + ": " + error.message);
+          continue;
+        }
+
+        // Get public URL from bucket
+        const { data: { publicUrl } } = _supabase.storage
+          .from("client-documents")
+          .getPublicUrl(storagePath);
+
+        // Add record to documents table linking the submission
+        const { error: dbError } = await _supabase
+          .from("documents")
+          .insert({
+            submission_id: selectedSubmission.id,
+            filename: file.name,
+            url: publicUrl
+          });
+
+        if (dbError) {
+          console.error("Database linking error for " + file.name + ": " + dbError.message);
+        } else {
+          uploadCount++;
+        }
+      }
+
+      // Add timeline log item
+      await _supabase
+        .from("timeline_events")
+        .insert({
+          submission_id: selectedSubmission.id,
+          title: "Preloaded Documents Added",
+          description: `Authorized staff uploaded & preloaded ${uploadCount} new documents to storage folders.`,
+          at: stampNow()
+        });
+
+      statusEl.textContent = `Successfully preloaded ${uploadCount} documents! 🎉`;
+      setTimeout(() => statusEl.classList.add("hidden"), 4000);
+      
+      refreshData();
+    }
+
+    // --- Simulated Client Message Board ---
+    async function submitSimulatedClientMessage() {
+      if (!selectedSubmission) return;
+
+      const text = document.getElementById("simMessageText").value.trim();
+      if (!text) return;
+
+      const { error } = await _supabase
+        .from("messages")
+        .insert({
+          submission_id: selectedSubmission.id,
+          from_role: "client",
+          text: text,
+          sender_name: selectedSubmission.client_name,
+          sender_email: selectedSubmission.client_email
+        });
+
+      if (error) {
+        triggerToast("Posting failed: " + error.message);
+        return;
+      }
+
+      await _supabase
+        .from("timeline_events")
+        .insert({
+          submission_id: selectedSubmission.id,
+          title: "Home Message Posted",
+          description: "A message was posted from the simulated home page message board.",
+          at: stampNow()
+        });
+
+      document.getElementById("simMessageText").value = "";
+      triggerToast("Simulated message posted!");
+      refreshData();
+    }
+
+    // ================= CLIENT CONTROLLERS =================
+
+    async function renderClientDashboard() {
+      if (!selectedSubmission) return;
+
+      // Stats row
+      const statsRow = document.getElementById("clientStatsRow");
+      statsRow.innerHTML = `
+        <div class="bg-white border border-gray-100 p-5 rounded-2xl shadow-sm">
+          <span class="text-[10px] font-bold text-gray-400 uppercase">Case Value Reference</span>
+          <p class="text-xl font-black text-brand-600 mt-1">${formatMoney(selectedSubmission.amount)}</p>
+        </div>
+        <div class="bg-white border border-gray-100 p-5 rounded-2xl shadow-sm">
+          <span class="text-[10px] font-bold text-gray-400 uppercase">Active hold reference</span>
+          <p class="text-xl font-black text-orange-600 mt-1">${formatMoney(selectedSubmission.hold_amount)}</p>
+        </div>
+        <div class="bg-white border border-gray-100 p-5 rounded-2xl shadow-sm">
+          <span class="text-[10px] font-bold text-gray-400 uppercase">Compliance Account</span>
+          <p class="text-xl font-black text-brand-teal mt-1 font-mono">${selectedSubmission.account_number || "PENDING"}</p>
+        </div>
+      `;
+
+      // Labels and status
+      document.getElementById("clientCaseNumberLabel").textContent = selectedSubmission.id;
+      document.getElementById("clientStatusBadge").textContent = selectedSubmission.status;
+      document.getElementById("clientNotesText").textContent = selectedSubmission.notes || "Case pending administrative manual review.";
+
+      // Info lines details Grid
+      const grid = document.getElementById("clientCaseDetailsGrid");
+      grid.innerHTML = `
+        <div class="space-y-1">
+          <div class="info-line"><strong>Request Type</strong><span>${selectedSubmission.type || "Review"}</span></div>
+          <div class="info-line"><strong>Debt in Fees</strong><span>${formatMoney(selectedSubmission.fee_debt)}</span></div>
+          <div class="info-line"><strong>FATCA Penalty</strong><span>${formatMoney(selectedSubmission.fatca_penalty)}</span></div>
+          <div class="info-line"><strong>FBAR Penalty</strong><span>${formatMoney(selectedSubmission.fbar_penalty)}</span></div>
+        </div>
+        <div class="space-y-1">
+          <div class="info-line"><strong>Ruling Date</strong><span>${selectedSubmission.ruling_date || "N/A"}</span></div>
+          <div class="info-line"><strong>Agency Reference</strong><span>${selectedSubmission.agency_reference || "N/A"}</span></div>
+          <div class="info-line"><strong>Assigned Manager</strong><span>Bryan Thomas (CEO)</span></div>
+          <div class="info-line"><strong>Verification Status</strong><span>Confirmed through authorized company records.</span></div>
+        </div>
+      `;
+
+      // Document list target email
+      document.getElementById("clientFolderLocation").textContent = `./${selectedSubmission.client_email}/`;
+
+      // Fetch lists
+      fetchMessagesLog("clientMessagesLog", selectedSubmission.id);
+      fetchTimelineView("clientTimelineView", selectedSubmission.id);
+      fetchClientDownloadableDocuments(selectedSubmission.id);
+    }
+
+    function renderClientEmptyState() {
+      document.getElementById("clientStatsRow").innerHTML = `
+        <div class="col-span-3 bg-white border border-gray-150 p-8 rounded-2xl text-center shadow-sm">
+          <h3 class="font-extrabold text-gray-700 text-sm mb-1">No Active Cases Found</h3>
+          <p class="text-xs text-gray-400">There are no administrative reviews currently associated with your email ${currentUser.email}.</p>
+        </div>
+      `;
+      document.getElementById("clientView").classList.add("hidden");
+    }
+
+    // ================= REAL-TIME DB SERVICES =================
+
+    async function fetchMessagesLog(containerId, submissionId) {
+      const logContainer = document.getElementById(containerId);
+      if (!logContainer) return;
+
+      const { data: messages, error } = await _supabase
+        .from("messages")
+        .select("*")
+        .eq("submission_id", submissionId)
+        .order("created_at", { ascending: true });
+
+      if (error) {
+        logContainer.innerHTML = `<p class="text-xs text-red-500">Failed to load message thread: ${error.message}</p>`;
+        return;
+      }
+
+      if (!messages || messages.length === 0) {
+        logContainer.innerHTML = `<p class="text-xs text-gray-400 italic text-center py-6">No communication recorded. Send a message to start.</p>`;
+        return;
+      }
+
+      logContainer.innerHTML = messages.map(msg => `
+        <div class="message ${msg.from_role === 'admin' ? 'admin' : 'client'}">
+          <strong>${msg.from_role === 'admin' ? 'Compliance Agent' : msg.sender_name}</strong>
+          <p class="whitespace-pre-wrap">${msg.text}</p>
+          <span>${msg.created_at ? new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : stampNow()}</span>
+        </div>
+      `).join("");
+
+      // Auto scroll to bottom
+      logContainer.scrollTop = logContainer.scrollHeight;
+    }
+
+    async function fetchTimelineView(containerId, submissionId) {
+      const timelineContainer = document.getElementById(containerId);
+      if (!timelineContainer) return;
+
+      const { data: events, error } = await _supabase
+        .from("timeline_events")
+        .select("*")
+        .eq("submission_id", submissionId)
+        .order("created_at", { ascending: false });
+
+      if (error) {
+        timelineContainer.innerHTML = `<p class="text-xs text-red-500">Failed to load activity logs.</p>`;
+        return;
+      }
+
+      if (!events || events.length === 0) {
+        timelineContainer.innerHTML = `<p class="text-xs text-gray-400 italic">No events recorded.</p>`;
+        return;
+      }
+
+      timelineContainer.innerHTML = events.map(ev => `
+        <div class="timeline-entry">
+          <strong>${ev.title}</strong>
+          ${ev.description ? `<p class="text-gray-500 text-xs mt-0.5">${ev.description}</p>` : ''}
+          <span class="date">${ev.at}</span>
+        </div>
+      `).join("");
+    }
+
+    async function fetchClientDownloadableDocuments(submissionId) {
+      const container = document.getElementById("clientDocsList");
+      if (!container) return;
+
+      const { data: docs, error } = await _supabase
+        .from("documents")
+        .select("*")
+        .eq("submission_id", submissionId)
+        .order("created_at", { ascending: false });
+
+      if (error || !docs || docs.length === 0) {
+        container.innerHTML = `<p class="text-[11px] text-gray-400 italic">No secure downloadable documents hosted for this case.</p>`;
+        return;
+      }
+
+      container.innerHTML = docs.map(d => {
+        const ext = d.filename.split('.').pop().toUpperCase();
+        return `
+          <div class="flex items-center justify-between p-3 rounded-lg bg-white border border-gray-100 hover:border-brand-100 transition">
+            <div class="flex items-center gap-2.5 min-w-0">
+              <div class="w-8 h-8 rounded bg-brand-500 text-white font-extrabold text-[10px] flex items-center justify-center shrink-0">
+                ${ext.substring(0, 3)}
+              </div>
+              <div class="truncate">
+                <strong class="text-xs text-gray-800 block truncate" title="${d.filename}">${d.filename}</strong>
+                <span class="text-[10px] text-gray-400 block font-medium">Hosted Compliance PDF</span>
+              </div>
+            </div>
+            <a href="${d.url}" download="${d.filename}" target="_blank" class="px-3 py-1.5 bg-brand-50 text-brand-500 rounded-lg text-xs font-bold hover:bg-brand-100 transition shrink-0">
+              Download
+            </a>
+          </div>
+        `;
+      }).join("");
+    }
+
+    // --- Message Sending logic ---
+    async function sendReviewMessage(role) {
+      if (!selectedSubmission) return;
+
+      const textBox = document.getElementById(role === "admin" ? "adminMessageInput" : "clientMessageInput");
+      const text = textBox.value.trim();
+      if (!text) return;
+
+      const senderName = role === "admin" ? "Bryan Thomas" : (currentUser.user_metadata?.name || "Client");
+      const senderEmail = role === "admin" ? "bryan@meridiantrust.local" : currentUser.email;
+
+      const { error } = await _supabase
+        .from("messages")
+        .insert({
+          submission_id: selectedSubmission.id,
+          from_role: role,
+          text: text,
+          sender_name: senderName,
+          sender_email: senderEmail
+        });
+
+      if (error) {
+        triggerToast("Sending failed: " + error.message);
+        return;
+      }
+
+      // Add timeline event
+      await _supabase
+        .from("timeline_events")
+        .insert({
+          submission_id: selectedSubmission.id,
+          title: role === "admin" ? "Admin Reply Added" : "Business Message Sent",
+          description: role === "admin" 
+            ? "Authorized staff sent an administrative reply." 
+            : "Business message was added to the case file.",
+          at: stampNow()
+        });
+
+      textBox.value = "";
+      refreshData();
+    }
+
+    // ================= TIMELINE CORRECTIONS SERVICES (SILENT) =================
+
+    async function openTimelineCorrections() {
+      if (!selectedSubmission) return;
+
+      const modal = document.getElementById("timelineCorrectionsModal");
+      modal.classList.remove("hidden");
+      
+      const { data: events, error } = await _supabase
+        .from("timeline_events")
+        .select("*")
+        .eq("submission_id", selectedSubmission.id)
+        .order("created_at", { ascending: false });
+
+      if (error) {
+        alert("Failed to load activity logs: " + error.message);
+        closeTimelineCorrections();
+        return;
+      }
+
+      correctionsCache = events || [];
+      renderTimelineCorrectionsList();
+    }
+
+    function closeTimelineCorrections() {
+      document.getElementById("timelineCorrectionsModal").classList.add("hidden");
+    }
+
+    function renderTimelineCorrectionsList() {
+      const container = document.getElementById("correctionsListContainer");
+      container.innerHTML = "";
+
+      if (correctionsCache.length === 0) {
+        container.innerHTML = `<p class="text-xs text-gray-500 italic text-center py-4">No events found. Click "Add Custom Event" below.</p>`;
+        return;
+      }
+
+      correctionsCache.forEach((ev, idx) => {
+        const item = document.createElement("div");
+        item.className = "p-4 border border-gray-200 rounded-xl bg-white space-y-3 relative";
+        item.innerHTML = `
+          <button onclick="removeTimelineCorrectionItem(${idx})" class="absolute top-4 right-4 px-2 py-1 bg-red-50 text-red-600 rounded text-[10px] font-bold hover:bg-red-100">
+            Remove
+          </button>
+          
+          <div class="grid grid-cols-2 gap-3 pr-16">
+            <div>
+              <label class="block text-[10px] text-gray-500 font-semibold mb-1 uppercase">Event Title</label>
+              <input type="text" value="${ev.title || ''}" class="border border-gray-200 rounded-lg px-3 py-1.5 text-xs w-full font-bold text-gray-800" onchange="syncCorrectionField(${idx}, 'title', this.value)" />
+            </div>
+            <div>
+              <label class="block text-[10px] text-gray-500 font-semibold mb-1 uppercase">Timestamp</label>
+              <input type="text" value="${ev.at || ''}" class="border border-gray-200 rounded-lg px-3 py-1.5 text-xs w-full text-gray-600" onchange="syncCorrectionField(${idx}, 'at', this.value)" />
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-[10px] text-gray-500 font-semibold mb-1 uppercase">Description</label>
+            <textarea rows="2" class="border border-gray-200 rounded-lg px-3 py-1.5 text-xs w-full resize-y" onchange="syncCorrectionField(${idx}, 'description', this.value)">${ev.description || ''}</textarea>
+          </div>
+        `;
+        container.appendChild(item);
+      });
+    }
+
+    function syncCorrectionField(idx, field, val) {
+      if (correctionsCache[idx]) {
+        correctionsCache[idx][field] = val;
+      }
+    }
+
+    function removeTimelineCorrectionItem(idx) {
+      correctionsCache.splice(idx, 1);
+      renderTimelineCorrectionsList();
+    }
+
+    function addNewBlankTimelineEvent() {
+      correctionsCache.unshift({
+        submission_id: selectedSubmission.id,
+        title: "New Timeline Log",
+        description: "Log details...",
+        at: stampNow()
+      });
+      renderTimelineCorrectionsList();
+    }
+
+    async function saveTimelineCorrections() {
+      if (!selectedSubmission) return;
+
+      // 1. Delete all old timeline logs for this submission
+      const { error: delError } = await _supabase
+        .from("timeline_events")
+        .delete()
+        .eq("submission_id", selectedSubmission.id);
+
+      if (delError) {
+        alert("Failed to save: " + delError.message);
+        return;
+      }
+
+      // 2. Insert new corrected logs (if any exist)
+      if (correctionsCache.length > 0) {
+        // Strip auto-generated fields to prevent UUID mapping issue on re-insert
+        const cleanInserts = correctionsCache.map(c => ({
+          submission_id: selectedSubmission.id,
+          title: c.title,
+          description: c.description,
+          at: c.at
+        }));
+
+        const { error: insError } = await _supabase
+          .from("timeline_events")
+          .insert(cleanInserts);
+
+        if (insError) {
+          alert("Re-insert failed: " + insError.message);
+          return;
+        }
+      }
+
+      closeTimelineCorrections();
+      triggerToast("Timeline corrections saved silently! 🤫");
+      refreshData();
+    }
+  </script>
 </body>
 </html>
