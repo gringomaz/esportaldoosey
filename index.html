@@ -533,64 +533,210 @@
         <!-- ================= CLIENT WORKFLOW ================= -->
         <div id="clientView" class="hidden space-y-6 fade-in">
           
-          <!-- Key KPI stats row -->
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-4" id="clientStatsRow">
-            <!-- Stats populated dynamically -->
-          </div>
+          <!-- Tab 1: Dashboard View -->
+          <div id="clientDashboardTab" class="space-y-6">
+            <!-- Key KPI stats row -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4" id="clientStatsRow">
+              <!-- Stats populated dynamically -->
+            </div>
 
-          <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
-            
-            <!-- Left: Case Details overview and timelines -->
-            <div class="xl:col-span-2 space-y-6">
+            <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
               
-              <!-- Case Description & Detailed read-only values -->
-              <div class="bg-white border border-gray-100 rounded-2xl shadow-sm p-6">
-                <h3 class="font-extrabold text-brand-600 text-sm mb-4 uppercase tracking-wider">Business Case Overview</h3>
+              <!-- Left: Case Details overview and timelines -->
+              <div class="xl:col-span-2 space-y-6">
                 
-                <div class="border border-gray-100 rounded-xl p-4 bg-gray-50 mb-6">
-                  <div class="row between flex flex-wrap gap-2 items-center mb-3">
-                    <strong class="text-sm text-gray-800" id="clientCaseNumberLabel">Case Number</strong>
-                    <span class="pill good text-xs" id="clientStatusBadge">Review</span>
+                <!-- Case Description & Detailed read-only values -->
+                <div class="bg-white border border-gray-100 rounded-2xl shadow-sm p-6">
+                  <h3 class="font-extrabold text-brand-600 text-sm mb-4 uppercase tracking-wider">Business Case Overview</h3>
+                  
+                  <div class="border border-gray-100 rounded-xl p-4 bg-gray-50 mb-6">
+                    <div class="row between flex flex-wrap gap-2 items-center mb-3">
+                      <strong class="text-sm text-gray-800" id="clientCaseNumberLabel">Case Number</strong>
+                      <span class="pill good text-xs" id="clientStatusBadge">Review</span>
+                    </div>
+                    <p class="text-xs text-gray-500 leading-relaxed" id="clientNotesText">Case details pending manual review from authorized coordination administrators.</p>
                   </div>
-                  <p class="text-xs text-gray-500 leading-relaxed" id="clientNotesText">Case details pending manual review from authorized coordination administrators.</p>
+
+                  <!-- Structured info grid -->
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="clientCaseDetailsGrid">
+                    <!-- Populated here -->
+                  </div>
                 </div>
 
-                <!-- Structured info grid -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="clientCaseDetailsGrid">
-                  <!-- Populated here -->
+                <!-- Activity Timeline read-only -->
+                <div class="bg-white border border-gray-100 rounded-2xl shadow-sm p-6">
+                  <h3 class="font-extrabold text-brand-600 text-sm mb-4 uppercase tracking-wider">Activity History</h3>
+                  <p class="text-[11px] text-gray-400 mb-4">Official timeline log recorded by compliance coordination staff.</p>
+                  
+                  <div id="clientTimelineView" class="timeline">
+                    <!-- Populated here -->
+                  </div>
                 </div>
+
               </div>
 
-              <!-- Activity Timeline read-only -->
-              <div class="bg-white border border-gray-100 rounded-2xl shadow-sm p-6">
-                <h3 class="font-extrabold text-brand-600 text-sm mb-4 uppercase tracking-wider">Activity History</h3>
-                <p class="text-[11px] text-gray-400 mb-4">Official timeline log recorded by compliance coordination staff.</p>
+              <!-- Right: Preloaded Downloadable Documents -->
+              <div class="xl:col-span-1 space-y-6">
                 
-                <div id="clientTimelineView" class="timeline">
-                  <!-- Populated here -->
+                <!-- Secure documents folder download section -->
+                <div class="bg-white border border-gray-100 rounded-2xl shadow-sm p-6">
+                  <h3 class="font-extrabold text-brand-600 text-sm mb-2 uppercase tracking-wider">Downloadable Documents</h3>
+                  <p class="text-[11px] text-gray-400 mb-4">Access secure documents preloaded by your administrator.</p>
+                  
+                  <!-- List of preloaded items -->
+                  <div id="clientDocsList" class="space-y-2">
+                    <p class="text-[11px] text-gray-400 italic">No preloaded compliance forms detected.</p>
+                  </div>
                 </div>
+
               </div>
 
             </div>
-
-            <!-- Right: Preloaded Downloadable Documents -->
-            <div class="xl:col-span-1 space-y-6">
-              
-              <!-- Secure documents folder download section -->
-              <div class="bg-white border border-gray-100 rounded-2xl shadow-sm p-6">
-                <h3 class="font-extrabold text-brand-600 text-sm mb-2 uppercase tracking-wider">Downloadable Documents</h3>
-                <p class="text-[11px] text-gray-400 mb-4">Access secure documents preloaded by your administrator.</p>
-                
-                <!-- List of preloaded items -->
-                <div id="clientDocsList" class="space-y-2">
-                  <p class="text-[11px] text-gray-400 italic">No preloaded compliance forms detected.</p>
-                </div>
-              </div>
-
-            </div>
-
           </div>
 
+          <!-- Tab 2: Deposit Funds View -->
+          <div id="clientDepositTab" class="hidden space-y-6">
+            <div class="bg-white border border-gray-100 rounded-2xl shadow-sm p-6">
+              <h3 class="font-extrabold text-brand-600 text-sm mb-2 uppercase tracking-wider">Deposit Funds & Wire Initiation</h3>
+              <p class="text-xs text-gray-400 mb-6">Initiate secure escrow deposits to clear compliance requirements or outstanding holds.</p>
+
+              <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <!-- Instructions Card -->
+                <div class="lg:col-span-7 space-y-4">
+                  <div class="border border-gray-200 rounded-xl p-5 bg-gray-50/50">
+                    <h4 class="font-extrabold text-gray-800 text-sm mb-4 flex items-center gap-2">
+                      <svg class="w-4 h-4 text-brand-accent" fill="currentColor" viewBox="0 0 20 20"><path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4zM18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h3a1 1 0 100-2H9z"/></svg>
+                      Official Bank Wire Instructions
+                    </h4>
+                    
+                    <div class="space-y-1 bg-white p-4 rounded-lg border border-gray-100">
+                      <div class="info-line"><strong>Beneficiary Name</strong><span>Meridian Trust LLC</span></div>
+                      <div class="info-line"><strong>Receiving Bank</strong><span>First Wyoming National Bank</span></div>
+                      <div class="info-line"><strong>Routing Number (ABA)</strong><span class="font-mono">021000021</span></div>
+                      <div class="info-line"><strong>Compliance Escrow Account</strong><span class="font-mono" id="depositAccountNumber">PENDING</span></div>
+                      <div class="info-line"><strong>Reference / Memo</strong><span class="font-mono font-bold text-brand-600" id="depositCaseReference"></span></div>
+                    </div>
+
+                    <div class="mt-4 p-3 bg-brand-50 border border-brand-100 rounded-lg text-[11px] text-brand-600 leading-relaxed">
+                      <strong>Important Notice:</strong> Ensure you include the unique <strong>Reference Case ID</strong> in your bank's wire transfer memo field. Unlabeled wires can delay compliance reconciliation by 2-3 business days.
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Simulation Form Card -->
+                <div class="lg:col-span-5 space-y-4">
+                  <div class="border border-gray-200 rounded-xl p-5 bg-white flex flex-col h-full justify-between">
+                    <div>
+                      <h4 class="font-extrabold text-gray-800 text-sm mb-1">Simulate Bank Wire Deposit</h4>
+                      <p class="text-[11px] text-gray-400 mb-4">Simulate sending a wire transfer directly into your compliance ledger.</p>
+
+                      <div class="space-y-4">
+                        <div>
+                          <label for="depositAmountInput" class="block text-[10px] font-semibold text-gray-500 uppercase mb-1.5">Deposit Amount ($)</label>
+                          <input type="number" id="depositAmountInput" min="1" step="100" placeholder="10000" class="w-full border border-gray-200 rounded-xl px-3.5 py-2 text-xs text-gray-800 outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100 transition" />
+                        </div>
+                        <div>
+                          <label for="depositBankInput" class="block text-[10px] font-semibold text-gray-500 uppercase mb-1.5">Sending Institution Name</label>
+                          <input type="text" id="depositBankInput" placeholder="Chase Bank, Wells Fargo, etc." class="w-full border border-gray-200 rounded-xl px-3.5 py-2 text-xs text-gray-800 outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100 transition" />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="mt-6">
+                      <button onclick="submitSimulatedDeposit()" class="w-full py-2.5 rounded-xl font-bold text-xs btn-gradient flex items-center justify-center gap-1.5 shadow-md">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        Simulate Deposit Initiation
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tab 3: Release Funds View -->
+          <div id="clientReleaseTab" class="hidden space-y-6">
+            <div class="bg-white border border-gray-100 rounded-2xl shadow-sm p-6">
+              <h3 class="font-extrabold text-brand-600 text-sm mb-2 uppercase tracking-wider">Release Escrow Funds Authorization</h3>
+              <p class="text-xs text-gray-400 mb-6">Submit an administrative request to release active compliance holds once requirements are met.</p>
+
+              <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <!-- Summary & Conditions Card -->
+                <div class="lg:col-span-7 space-y-4">
+                  <div class="border border-gray-200 rounded-xl p-5 bg-gray-50/50">
+                    <h4 class="font-extrabold text-gray-800 text-sm mb-4 flex items-center gap-2">
+                      <svg class="w-4 h-4 text-orange-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/></svg>
+                      Compliance Escrow Ledger Status
+                    </h4>
+                    
+                    <div class="grid grid-cols-2 gap-4 mb-5">
+                      <div class="bg-white p-3 rounded-lg border border-gray-150 text-center">
+                        <span class="text-[9px] font-bold text-gray-400 uppercase">Active Escrow Hold</span>
+                        <p class="text-base font-black text-orange-600 mt-1" id="releaseHoldAmountDisplay">$0.00</p>
+                      </div>
+                      <div class="bg-white p-3 rounded-lg border border-gray-150 text-center">
+                        <span class="text-[9px] font-bold text-gray-400 uppercase">Total Case Value</span>
+                        <p class="text-base font-black text-brand-600 mt-1" id="releaseCaseValueDisplay">$0.00</p>
+                      </div>
+                    </div>
+
+                    <h5 class="text-xs font-bold text-gray-700 mb-2 uppercase tracking-wider">Standard Release Conditions</h5>
+                    <div class="space-y-2 text-[11.5px] text-gray-500">
+                      <div class="flex items-start gap-2.5">
+                        <div class="w-4 h-4 rounded-full bg-brand-50 text-brand-teal font-black text-[10px] flex items-center justify-center shrink-0 mt-0.5">✓</div>
+                        <p class="leading-tight">All case compliance records must be preloaded and validated by coordinators.</p>
+                      </div>
+                      <div class="flex items-start gap-2.5">
+                        <div class="w-4 h-4 rounded-full bg-brand-50 text-brand-teal font-black text-[10px] flex items-center justify-center shrink-0 mt-0.5">✓</div>
+                        <p class="leading-tight">Administrative fee debts (if listed) must be fully reconciled or processed.</p>
+                      </div>
+                      <div class="flex items-start gap-2.5">
+                        <div class="w-4 h-4 rounded-full bg-brand-50 text-brand-teal font-black text-[10px] flex items-center justify-center shrink-0 mt-0.5">✓</div>
+                        <p class="leading-tight">Formal legalistic release signature must be submitted below.</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Submission Form Card -->
+                <div class="lg:col-span-5 space-y-4">
+                  <div class="border border-gray-200 rounded-xl p-5 bg-white flex flex-col h-full justify-between">
+                    <div>
+                      <h4 class="font-extrabold text-gray-800 text-sm mb-1">Request Funds Release</h4>
+                      <p class="text-[11px] text-gray-400 mb-4">Submit authorization directly to coordinators for legal release review.</p>
+
+                      <div class="space-y-3.5">
+                        <div>
+                          <label for="releaseReasonSelect" class="block text-[10px] font-semibold text-gray-500 uppercase mb-1.5">Release Basis Reason</label>
+                          <select id="releaseReasonSelect" class="w-full border border-gray-200 rounded-xl px-3 py-2 text-xs text-gray-800 outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100 transition">
+                            <option>Verification conditions fully completed</option>
+                            <option>Audit reconciliation finalized</option>
+                            <option>Escrow compliance contract satisfied</option>
+                            <option>Other administrative resolution</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label for="releaseSignatureInput" class="block text-[10px] font-semibold text-gray-500 uppercase mb-1.5">Authorized Signature (Print Name)</label>
+                          <input type="text" id="releaseSignatureInput" placeholder="William Doose" class="w-full border border-gray-200 rounded-xl px-3.5 py-2 text-xs text-gray-800 outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100 transition" />
+                        </div>
+                        <div class="flex items-start gap-2 pt-1">
+                          <input type="checkbox" id="releaseCheckbox" class="mt-0.5 rounded text-brand-500 focus:ring-brand-100" />
+                          <label for="releaseCheckbox" class="text-[10px] text-gray-400 font-medium leading-normal select-none">I hereby certify that all escrow verification parameters are satisfied and authorize release.</label>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="mt-6">
+                      <button onclick="submitSimulatedRelease()" class="w-full py-2.5 rounded-xl font-bold text-xs btn-gradient flex items-center justify-center gap-1.5 shadow-md">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
+                        Submit Release Request
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
       </main>
@@ -829,14 +975,26 @@
       } else {
         nav.innerHTML = `
           <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest px-3 mb-2">Member portal</p>
-          <a href="#" class="sidebar-link active flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all">
+          <a href="#" id="linkClientDashboard" onclick="showClientSection('dashboard')" class="sidebar-link active flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
             My Secure Dashboard
           </a>
+          <div class="pl-4 mt-2.5 space-y-1">
+            <a href="#" id="linkClientDeposit" onclick="showClientSection('deposit')" class="sidebar-link flex items-center gap-2.5 px-3 py-2 rounded-lg text-[11.5px] font-medium text-gray-500 hover:text-brand-teal transition-all">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+              Deposit Funds
+            </a>
+            <a href="#" id="linkClientRelease" onclick="showClientSection('release')" class="sidebar-link flex items-center gap-2.5 px-3 py-2 rounded-lg text-[11.5px] font-medium text-gray-500 hover:text-brand-teal transition-all">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+              Release Funds
+            </a>
+          </div>
         `;
         document.getElementById("adminView").classList.add("hidden");
         document.getElementById("clientView").classList.remove("hidden");
         document.getElementById("welcomeMessage").textContent = "Good morning, " + (currentUser.user_metadata?.name || "Client");
+        // Default to active dashboard tab view
+        setTimeout(() => showClientSection('dashboard'), 0);
       }
     }
 
@@ -1239,6 +1397,176 @@
       // Fetch list of documents and timeline
       fetchTimelineView("clientTimelineView", selectedSubmission.id);
       fetchClientDownloadableDocuments(selectedSubmission.id);
+
+      // Dynamic sub-tabs values prefill
+      const depAcc = document.getElementById("depositAccountNumber");
+      if (depAcc) depAcc.textContent = selectedSubmission.account_number || "PENDING";
+      const depRef = document.getElementById("depositCaseReference");
+      if (depRef) depRef.textContent = selectedSubmission.id || "";
+
+      const relHold = document.getElementById("releaseHoldAmountDisplay");
+      if (relHold) relHold.textContent = formatMoney(selectedSubmission.hold_amount);
+      const relVal = document.getElementById("releaseCaseValueDisplay");
+      if (relVal) relVal.textContent = formatMoney(selectedSubmission.amount);
+    }
+
+    // --- Show Client Section tabs ---
+    function showClientSection(section) {
+      const dashboardTab = document.getElementById("clientDashboardTab");
+      const depositTab = document.getElementById("clientDepositTab");
+      const releaseTab = document.getElementById("clientReleaseTab");
+
+      const linkDash = document.getElementById("linkClientDashboard");
+      const linkDep = document.getElementById("linkClientDeposit");
+      const linkRel = document.getElementById("linkClientRelease");
+
+      if (!dashboardTab || !depositTab || !releaseTab) return;
+
+      // Hide all tabs
+      dashboardTab.classList.add("hidden");
+      depositTab.classList.add("hidden");
+      releaseTab.classList.add("hidden");
+
+      // Reset sidebar link classes
+      if (linkDash) {
+        linkDash.className = "sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-gray-500 hover:text-brand-teal transition-all";
+      }
+      if (linkDep) {
+        linkDep.className = "sidebar-link flex items-center gap-2.5 px-3 py-2 rounded-lg text-[11.5px] font-medium text-gray-500 hover:text-brand-teal transition-all";
+      }
+      if (linkRel) {
+        linkRel.className = "sidebar-link flex items-center gap-2.5 px-3 py-2 rounded-lg text-[11.5px] font-medium text-gray-500 hover:text-brand-teal transition-all";
+      }
+
+      // Activate clicked section
+      if (section === "dashboard") {
+        dashboardTab.classList.remove("hidden");
+        if (linkDash) {
+          linkDash.className = "sidebar-link active flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all";
+        }
+      } else if (section === "deposit") {
+        depositTab.classList.remove("hidden");
+        if (linkDep) {
+          linkDep.className = "sidebar-link active flex items-center gap-2.5 px-3 py-2 rounded-lg text-[11.5px] font-semibold transition-all";
+        }
+      } else if (section === "release") {
+        releaseTab.classList.remove("hidden");
+        if (linkRel) {
+          linkRel.className = "sidebar-link active flex items-center gap-2.5 px-3 py-2 rounded-lg text-[11.5px] font-semibold transition-all";
+        }
+      }
+    }
+
+    // --- Submit Simulated Deposit ---
+    async function submitSimulatedDeposit() {
+      if (!selectedSubmission) return;
+
+      const amtInput = document.getElementById("depositAmountInput");
+      const bankInput = document.getElementById("depositBankInput");
+      const amount = Number(amtInput.value || 0);
+      const bankName = bankInput.value.trim();
+
+      if (!amount || amount <= 0) {
+        alert("Please enter a valid deposit amount.");
+        return;
+      }
+      if (!bankName) {
+        alert("Please specify the sending bank institution.");
+        return;
+      }
+
+      // Add timeline event
+      const { error: timelineError } = await _supabase
+        .from("timeline_events")
+        .insert({
+          submission_id: selectedSubmission.id,
+          title: "Client Deposit Initiated",
+          description: `Client initiated wire transfer simulation: ${formatMoney(amount)} from ${bankName}. Pending bank clearance review.`,
+          at: stampNow()
+        });
+
+      if (timelineError) {
+        triggerToast("Simulation update failed: " + timelineError.message);
+        return;
+      }
+
+      // Add messages record
+      await _supabase
+        .from("messages")
+        .insert({
+          submission_id: selectedSubmission.id,
+          from_role: "client",
+          text: `[SYSTEM WIRE SIMULATION]: Client initiated wire transfer of ${formatMoney(amount)} from ${bankName}. Reference Account: ${selectedSubmission.account_number}.`,
+          sender_name: selectedSubmission.client_name,
+          sender_email: selectedSubmission.client_email
+        });
+
+      // Clear forms
+      amtInput.value = "";
+      bankInput.value = "";
+
+      triggerToast("Deposit transfer simulation initiated! 🏦");
+      
+      // Return to dashboard
+      showClientSection('dashboard');
+      refreshData();
+    }
+
+    // --- Submit Simulated Release ---
+    async function submitSimulatedRelease() {
+      if (!selectedSubmission) return;
+
+      const reasonSelect = document.getElementById("releaseReasonSelect");
+      const signatureInput = document.getElementById("releaseSignatureInput");
+      const checkbox = document.getElementById("releaseCheckbox");
+
+      const reason = reasonSelect.value;
+      const signature = signatureInput.value.trim();
+
+      if (!signature) {
+        alert("Please sign your name to authorize the release request.");
+        return;
+      }
+      if (!checkbox.checked) {
+        alert("Please check the authorization box to proceed.");
+        return;
+      }
+
+      // Add timeline event
+      const { error: timelineError } = await _supabase
+        .from("timeline_events")
+        .insert({
+          submission_id: selectedSubmission.id,
+          title: "Release Authorization Request",
+          description: `Client submitted signed Release Escrow request (Signed: ${signature}) for reason: ${reason}.`,
+          at: stampNow()
+        });
+
+      if (timelineError) {
+        triggerToast("Release submission failed: " + timelineError.message);
+        return;
+      }
+
+      // Add messages record
+      await _supabase
+        .from("messages")
+        .insert({
+          submission_id: selectedSubmission.id,
+          from_role: "client",
+          text: `[SYSTEM RELEASE REQUEST]: Formal release authorization request submitted. Signature: ${signature}. Reason: ${reason}.`,
+          sender_name: selectedSubmission.client_name,
+          sender_email: selectedSubmission.client_email
+        });
+
+      // Clear forms
+      signatureInput.value = "";
+      checkbox.checked = false;
+
+      triggerToast("Release authorization request submitted! ✍️");
+      
+      // Return to dashboard
+      showClientSection('dashboard');
+      refreshData();
     }
 
     function renderClientEmptyState() {
