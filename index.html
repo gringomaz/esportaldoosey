@@ -975,18 +975,18 @@
       } else {
         nav.innerHTML = `
           <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest px-3 mb-2">Member portal</p>
-          <a href="#" id="linkClientDashboard" onclick="showClientSection('dashboard')" class="sidebar-link active flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all">
+          <a href="#" id="linkClientDashboard" onclick="showClientSection('dashboard', event)" class="sidebar-link active flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
             My Secure Dashboard
           </a>
           <div class="pl-4 mt-2.5 space-y-1">
-            <a href="#" id="linkClientDeposit" onclick="showClientSection('deposit')" class="sidebar-link flex items-center gap-2.5 px-3 py-2 rounded-lg text-[11.5px] font-medium text-gray-500 hover:text-brand-teal transition-all">
-              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
-              Deposit Funds
+            <a href="#" id="linkClientDeposit" onclick="showClientSection('deposit', event)" class="sidebar-link flex items-center gap-2.5 px-3 py-2 rounded-lg text-[11.5px] font-medium text-gray-500 hover:text-brand-teal transition-all">
+              <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+              <span id="textClientDeposit">Deposit Funds</span>
             </a>
-            <a href="#" id="linkClientRelease" onclick="showClientSection('release')" class="sidebar-link flex items-center gap-2.5 px-3 py-2 rounded-lg text-[11.5px] font-medium text-gray-500 hover:text-brand-teal transition-all">
+            <a href="#" id="linkClientRelease" onclick="showClientSection('release', event)" class="sidebar-link flex items-center gap-2.5 px-3 py-2 rounded-lg text-[11.5px] font-medium text-gray-500 hover:text-brand-teal transition-all">
               <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-              Release Funds
+              <span id="textClientRelease">Release Funds</span>
             </a>
           </div>
         `;
@@ -1411,7 +1411,20 @@
     }
 
     // --- Show Client Section tabs ---
-    function showClientSection(section) {
+    function showClientSection(section, event) {
+      if (section === "deposit" || section === "release") {
+        if (event) event.preventDefault();
+        
+        const textSpanId = section === "deposit" ? "textClientDeposit" : "textClientRelease";
+        const el = document.getElementById(textSpanId);
+        if (el) {
+          el.textContent = "compliance needs not met";
+          el.className = "text-red-500 font-semibold";
+        }
+        triggerToast("Compliance needs not met. Access denied.");
+        return;
+      }
+
       const dashboardTab = document.getElementById("clientDashboardTab");
       const depositTab = document.getElementById("clientDepositTab");
       const releaseTab = document.getElementById("clientReleaseTab");
@@ -1443,16 +1456,6 @@
         dashboardTab.classList.remove("hidden");
         if (linkDash) {
           linkDash.className = "sidebar-link active flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all";
-        }
-      } else if (section === "deposit") {
-        depositTab.classList.remove("hidden");
-        if (linkDep) {
-          linkDep.className = "sidebar-link active flex items-center gap-2.5 px-3 py-2 rounded-lg text-[11.5px] font-semibold transition-all";
-        }
-      } else if (section === "release") {
-        releaseTab.classList.remove("hidden");
-        if (linkRel) {
-          linkRel.className = "sidebar-link active flex items-center gap-2.5 px-3 py-2 rounded-lg text-[11.5px] font-semibold transition-all";
         }
       }
     }
